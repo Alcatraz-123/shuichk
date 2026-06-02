@@ -1164,46 +1164,57 @@
         }
 
         // 同步加载：用 XMLHttpRequest（同步模式）确保数据在页面渲染前就位
-        function loadData() {
-            if (loadFromCache()) return;
+                // \u5f02\u6b65\u52a0\u8f7d\uff1a\u907f\u514dWebView\u5bf9\u540c\u6b65XHR\u7684\u9650\u5236
+        function loadDataAsync(callback) {
+            if (loadFromCache()) { callback(); return; }
 
             if (!BASE_URL) {
                 loadFromLocal();
+                callback();
                 return;
             }
 
             var data = {};
-            var allLoaded = true;
-            for (var i = 0; i < dataFiles.length; i++) {
-                var name = dataFiles[i];
-                try {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('GET', BASE_URL + '/' + name + '.json', false); // 同步
-                    xhr.send();
+            var pending = dataFiles.length;
+            var failed = false;
+
+            dataFiles.forEach(function(name) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', BASE_URL + '/' + name + '.json', true);
+                xhr.onload = function() {
                     if (xhr.status === 200) {
                         data[name] = JSON.parse(xhr.responseText);
                     } else {
-                        allLoaded = false;
-                        break;
+                        failed = true;
                     }
-                } catch(e) {
-                    allLoaded = false;
-                    break;
-                }
-            }
-
-            if (allLoaded) {
-                window.__DATA__ = data;
-                saveToCache(data);
-            } else {
-                if (!loadFromCache()) {
-                    loadFromLocal();
-                }
-            }
+                    pending--;
+                    if (pending === 0) {
+                        if (!failed) {
+                            window.__DATA__ = data;
+                            saveToCache(data);
+                        } else {
+                            if (!loadFromCache()) loadFromLocal();
+                        }
+                        callback();
+                    }
+                };
+                xhr.onerror = function() {
+                    failed = true;
+                    pending--;
+                    if (pending === 0) {
+                        if (!loadFromCache()) loadFromLocal();
+                        callback();
+                    }
+                };
+                xhr.send();
+            });
         }
 
-        loadData();
-
+        var __dataReady = false;
+        loadDataAsync(function() {
+            __dataReady = true;
+            if (typeof window.__onDataReady === 'function') window.__onDataReady();
+        });
         // 异步更新：后台静默拉最新数据
         if (BASE_URL && navigator.onLine) {
             setTimeout(function() {
@@ -1221,6 +1232,10 @@
                             // 刷新页面数据
                             if (typeof renderProducts === 'function') renderProducts();
                             if (typeof updateFavorites === 'function') updateFavorites();
+                            if (typeof initDiseaseList === 'function') initDiseaseList();
+                            if (typeof initProgramSelector === 'function') initProgramSelector();
+                            if (typeof initDiagnostic === 'function') initDiagnostic();
+                            if (typeof initContraindication === 'function') initContraindication();
                         }
                     }).catch(function() { pending--; });
                 });
@@ -1546,6 +1561,11 @@
     let selectedSymptoms = [];
 
     // 初始化
+    function __renderAppData() {
+        renderProducts();
+        updateFavorites();
+    }
+    window.__onDataReady = __renderAppData;
     document.addEventListener('DOMContentLoaded', function() {
         initTabs();
         initFilters();
@@ -1554,8 +1574,10 @@
         initProgramSelector();
         initDiagnostic();
         initContraindication();
-        renderProducts();
-        updateFavorites();
+        if (typeof __dataReady !== 'undefined' && __dataReady) {
+            __renderAppData();
+        }
+        // else: __onDataReady will be called by loadDataAsync callback
         // FAB button listeners
         var qaBtn = document.getElementById('qaFabBtn');
         if (qaBtn) qaBtn.addEventListener('click', function(e) {
