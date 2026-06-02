@@ -1,0 +1,16 @@
+{
+  "name": "瑞普水禽工具包",
+  "short_name": "水禽工具",
+  "description": "瑞普生物水禽解决方案工具包",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a5276",
+  "theme_color": "#1a5276",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a5276'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='white'>🦆</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
