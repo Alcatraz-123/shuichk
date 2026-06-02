@@ -1,0 +1,244 @@
+{
+  "24": {
+    "waterMix": "800-1000kg体重/瓶(约1600-2000斤水)",
+    "courseDays": 3,
+    "mixMethod": "集中饮水，连用3天"
+  },
+  "26": {
+    "waterMix": "600斤水/4g",
+    "courseDays": 1,
+    "mixMethod": "配合抗体注射时0.2g/瓶"
+  },
+  "27": {
+    "courseDays": 1,
+    "mixMethod": "配合疫苗/抗体肌注，长效120h"
+  },
+  "28": {
+    "waterMix": "600斤水",
+    "courseDays": "3-5",
+    "mixMethod": "饮水，连用4天（输卵管炎配合卵益舒）"
+  },
+  "29": {
+    "waterMix": "300斤水/100g",
+    "feedMix": "200斤料/100g",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水或拌料"
+  },
+  "30": {
+    "waterMix": "前期15000只/袋，后期8000-10000只/袋",
+    "courseDays": 3,
+    "mixMethod": "集中饮水"
+  },
+  "32": {
+    "waterMix": "一级100g/吨水；二级200g/吨+三香正气4瓶/吨；三级200g/吨+三香正气+5包/吨",
+    "courseDays": "按需",
+    "mixMethod": "分级饮水"
+  },
+  "33": {
+    "waterMix": "带鸭消毒1:400(3-5次/周)；饮水消毒1:1000(4-6h，2-3次/周)",
+    "mixMethod": "喷洒/饮水"
+  },
+  "37": {
+    "waterMix": "2000斤水/500g",
+    "feedMix": "1000斤料/500g",
+    "courseDays": 5,
+    "mixMethod": "饮水或拌料，每月2次"
+  },
+  "38": {
+    "waterMix": "400-600斤水/袋",
+    "feedMix": "1000斤料/kg",
+    "courseDays": "5-7",
+    "mixMethod": "饮水或拌料，每月1-2次"
+  },
+  "39": {
+    "waterMix": "300斤水",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "40": {
+    "waterMix": "1000斤水/500ml",
+    "courseDays": "4-5",
+    "mixMethod": "自由饮水"
+  },
+  "41": {
+    "waterMix": "一级100g/吨水；二级200g/吨水；三级200g/吨水",
+    "courseDays": "按需",
+    "mixMethod": "热应激分级饮水"
+  },
+  "49": {
+    "waterMix": "第1天1000斤水/瓶，第2-3天1500斤水/瓶",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "50": {
+    "waterMix": "500斤水/100g",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "51": {
+    "feedMix": "500斤料/100g",
+    "courseDays": "5-7",
+    "mixMethod": "混饲，连用5-7天"
+  },
+  "52": {
+    "waterMix": "400斤水/100g",
+    "feedMix": "200斤料/100g",
+    "courseDays": "3-5",
+    "mixMethod": "混饮或混饲"
+  },
+  "53": {
+    "waterMix": "400-500斤水/100g(袋)",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水，给药前停水1-2h"
+  },
+  "54": {
+    "waterMix": "500斤水/袋",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "57": {
+    "waterMix": "400斤水/袋",
+    "courseDays": "5-7",
+    "mixMethod": "集中饮水"
+  },
+  "72": {
+    "waterMix": "3500只/瓶",
+    "courseDays": 3,
+    "mixMethod": "雏禽开口饮水"
+  },
+  "73": {
+    "waterMix": "800斤水/500ml",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "74": {
+    "waterMix": "800斤水/1000ml",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "75": {
+    "waterMix": "300斤水/100g",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "76": {
+    "waterMix": "300斤水/100g",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "77": {
+    "waterMix": "500斤水/250ml",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "78": {
+    "courseDays": 1,
+    "mixMethod": "内服，4000斤体重/500g"
+  },
+  "79": {
+    "waterMix": "600斤水/瓶",
+    "courseDays": "5-7",
+    "mixMethod": "自由饮水"
+  },
+  "80": {
+    "waterMix": "2.5L兑水1665-2500L(约3330-5000斤水)",
+    "courseDays": "5-7",
+    "mixMethod": "自由饮水"
+  },
+  "81": {
+    "waterMix": "250斤水/100g",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "82": {
+    "waterMix": "4瓶/吨水",
+    "courseDays": "3-5",
+    "mixMethod": "自由饮水"
+  },
+  "83": {
+    "waterMix": "600斤水/100g(32.5%)",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "84": {
+    "courseDays": 1,
+    "mixMethod": "内服0.5-1ml/kg体重"
+  },
+  "85": {
+    "waterMix": "0.1-0.2%自由饮水6h×2天",
+    "courseDays": 2,
+    "mixMethod": "酸化饮水，免疫时停用1天"
+  },
+  "86": {
+    "waterMix": "500斤水/袋",
+    "feedMix": "1000斤料/1kg",
+    "courseDays": "5-7",
+    "mixMethod": "饮水或拌料"
+  },
+  "92": {
+    "waterMix": "800-1000kg体重/瓶(约1600-2000斤水)",
+    "courseDays": 3,
+    "mixMethod": "集中饮水"
+  },
+  "95": {
+    "waterMix": "2000斤水/kg",
+    "courseDays": "3-5",
+    "mixMethod": "集中饮水"
+  },
+  "96": {
+    "courseDays": 1,
+    "mixMethod": "注射，1-3日龄2-3羽份，60日龄3羽份"
+  },
+  "97": {
+    "courseDays": 1,
+    "mixMethod": "紧急注射，1.5ml/kg体重"
+  },
+  "98": {
+    "courseDays": 1,
+    "mixMethod": "紧急注射，1.5ml/只"
+  },
+  "99": {
+    "waterMix": "300斤水",
+    "courseDays": "5-7",
+    "mixMethod": "集中饮水"
+  },
+  "100": {
+    "waterMix": "500斤水/袋",
+    "courseDays": "5-7",
+    "mixMethod": "集中饮水"
+  },
+  "101": {
+    "waterMix": "2000斤水",
+    "courseDays": 4,
+    "mixMethod": "集中饮水"
+  },
+  "102": {
+    "waterMix": "500斤/500ml",
+    "courseDays": 5,
+    "mixMethod": "集中饮水"
+  },
+  "103": {
+    "waterMix": "1.5g/L饮水",
+    "courseDays": 5,
+    "mixMethod": "集中饮水"
+  },
+  "104": {
+    "courseDays": 1,
+    "mixMethod": "注射，配合速倍林+康替优"
+  },
+  "105": {
+    "courseDays": 1,
+    "mixMethod": "注射，配合速倍林+康替优+法康宁"
+  },
+  "106": {
+    "waterMix": "400-600斤水/袋",
+    "feedMix": "500斤料/袋",
+    "courseDays": "5-7",
+    "mixMethod": "饮水或拌料"
+  },
+  "107": {
+    "waterMix": "600斤水/袋",
+    "courseDays": 4,
+    "mixMethod": "集中饮水，配合莫克林"
+  }
+}
