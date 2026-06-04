@@ -3,11 +3,25 @@
 <head>
 
 <script>
+    // 全局错误捕获，方便调试
+    window.onerror = function(msg, url, line, col, error) {
+        console.error('[JS Error]', msg, 'line:', line);
+        var dbg = document.getElementById('__debug_log');
+        if (!dbg) {
+            dbg = document.createElement('div');
+            dbg.id = '__debug_log';
+            dbg.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:rgba(255,0,0,0.9);color:#fff;font-size:10px;padding:4px;z-index:999999;max-height:80px;overflow-y:auto;';
+            document.body.appendChild(dbg);
+        }
+        dbg.innerHTML += msg + ' (L' + line + ')<br>';
+        return false;
+    };
+
 window.__EMBEDDED_DATA__=true;
 window.__DATA__=window.__DATA__||{};
 window.__DATA__.contraData=[{"name": "灭活疫苗通用禁忌", "tags": ["疫苗", "灭活苗"], "items": [{"label": "禁止混用", "value": "不同灭活疫苗禁止在同一注射器中混合注射，需分点注射", "level": "danger"}, {"label": "注射间隔", "value": "两种灭活疫苗注射间隔≥7天，避免免疫干扰", "level": "warn"}, {"label": "健康要求", "value": "患病、瘦弱、体温异常禽只禁止接种", "level": "danger"}, {"label": "使用前回温", "value": "从冰箱取出后需回温至室温（约20-25℃），减少注射应激", "level": "warn"}, {"label": "严禁冻结", "value": "灭活疫苗2-8℃保存，严禁冻结，冻结后破乳失效", "level": "danger"}, {"label": "开瓶时限", "value": "开封后当日用完，剩余不可留存下次使用", "level": "warn"}]}, {"name": "活疫苗通用禁忌", "tags": ["疫苗", "活苗"], "items": [{"label": "抗生素干扰", "value": "活疫苗接种前后3天内禁用抗生素（尤其氟苯尼考、多西环素等广谱抗生素），会杀灭活苗毒株导致免疫失败", "level": "danger"}, {"label": "消毒剂干扰", "value": "活疫苗接种前后3天内禁止饮水/喷雾消毒，消毒剂会灭活疫苗毒株", "level": "danger"}, {"label": "免疫间隔", "value": "两种活疫苗免疫间隔≥5天（滴鼻点眼与饮水除外）", "level": "warn"}, {"label": "活苗+灭活苗", "value": "活苗与灭活苗可同日不同部位注射，但建议间隔3天以上", "level": "warn"}, {"label": "运输保存", "value": "活苗需-15℃以下冷冻保存，稀释后2小时内用完", "level": "warn"}]}, {"name": "禽元/禽元加", "tags": ["疫苗", "灭活苗", "禽元"], "items": [{"label": "种禽专用", "value": "禽元加为种禽专用，商品禽用禽元即可", "level": "info"}, {"label": "注射部位", "value": "颈部皮下或胸部肌肉注射，严禁腿部注射（影响行走）", "level": "danger"}, {"label": "应激处理", "value": "接种后可能出现1-2天食欲下降，属正常免疫反应；若持续3天以上需排查其他病因", "level": "warn"}]}, {"name": "亚黄平（坦布苏活苗）", "tags": ["疫苗", "活苗", "亚黄平", "坦布苏"], "items": [{"label": "禁用抗生素", "value": "接种前后3天禁用抗病毒药和抗生素，否则活苗无法有效增殖", "level": "danger"}, {"label": "种鸭开产期", "value": "种鸭开产期慎用，可能引起短暂产蛋波动（3-5天），建议开产前2周完成免疫", "level": "warn"}]}, {"name": "亚平宁（鸭瘟活苗）", "tags": ["疫苗", "活苗", "亚平宁", "鸭瘟"], "items": [{"label": "禁用抗生素", "value": "接种前后3天禁用抗病毒药和广谱抗生素", "level": "danger"}, {"label": "治疗用量", "value": "预防4羽份/只，已发病治疗至少20羽份/只，用量差异大切勿混淆", "level": "danger"}, {"label": "紧急接种", "value": "鸭瘟暴发时可紧急接种，但需同时配合抗生素防继发感染", "level": "warn"}]}, {"name": "稳康宁/雅稳妥（抗体类）", "tags": ["抗体", "稳康宁", "雅稳妥"], "items": [{"label": "活苗冲突", "value": "注射抗体后7天内禁止接种活疫苗（抗体会中和活苗毒株），灭活苗不受影响", "level": "danger"}, {"label": "重复注射", "value": "同种抗体两次注射间隔≥5天，避免免疫复合物反应", "level": "warn"}, {"label": "保存要求", "value": "2-8℃冷藏，严禁冻结；冻结后蛋白变性，出现絮状沉淀即废弃", "level": "danger"}]}, {"name": "莫克林（恩诺沙星）", "tags": ["化药", "莫克林", "恩诺沙星"], "items": [{"label": "产蛋期禁用", "value": "产蛋期禁用，鸡蛋中残留严重超标，休药期8天", "level": "danger"}, {"label": "幼雏慎用", "value": "1周龄内雏禽慎用，可能影响软骨发育", "level": "warn"}, {"label": "活苗冲突", "value": "使用莫克林期间禁止接种活疫苗，至少停药3天后再免疫", "level": "danger"}, {"label": "配伍禁忌", "value": "禁止与含金属离子（Ca²⁺、Mg²⁺、Al³⁺）的药物同服，影响吸收", "level": "warn"}]}, {"name": "速倍林（阿莫西林）", "tags": ["化药", "速倍林", "阿莫西林"], "items": [{"label": "配伍禁忌", "value": "禁止与大环内酯类（红霉素、泰乐菌素）合用，药效拮抗", "level": "danger"}, {"label": "活苗冲突", "value": "使用期间禁止接种活疫苗", "level": "danger"}, {"label": "休药期", "value": "休药期7天，产蛋期禁用", "level": "warn"}]}, {"name": "倍扶欣（氟苯尼考）", "tags": ["化药", "倍扶欣", "氟苯尼考"], "items": [{"label": "产蛋期禁用", "value": "产蛋期绝对禁用，残留期长且影响产蛋率", "level": "danger"}, {"label": "胚胎毒性", "value": "种禽慎用，有胚胎毒性可能影响孵化率", "level": "danger"}, {"label": "免疫抑制", "value": "氟苯尼考有免疫抑制作用，用药期间接种活疫苗无效，停药后≥5天再免疫", "level": "danger"}, {"label": "休药期", "value": "休药期14天（比普通化药长），需提前规划用药", "level": "warn"}]}, {"name": "优瑞康泰（多西环素）", "tags": ["化药", "优瑞康泰", "多西环素"], "items": [{"label": "产蛋期禁用", "value": "产蛋期禁用，休药期7天", "level": "danger"}, {"label": "配伍禁忌", "value": "禁止与含钙、镁、铁的药物/添加剂同服，形成络合物影响吸收", "level": "warn"}, {"label": "活苗冲突", "value": "广谱抗生素会抑制活苗增殖，用药期间禁止免疫活苗", "level": "danger"}]}, {"name": "卫清宁（消毒剂）", "tags": ["消毒", "卫清宁"], "items": [{"label": "活苗冲突", "value": "疫苗接种前后3天禁止带禽喷雾消毒，消毒雾粒会灭活活疫苗毒株", "level": "danger"}, {"label": "饮水免疫", "value": "饮水免疫前48小时停止饮水中添加消毒剂", "level": "danger"}, {"label": "浓度要求", "value": "严格按说明书稀释，浓度过高腐蚀设备、刺激呼吸道", "level": "warn"}]}];
 window.__DATA__.diagnosticMap=[{"name": "鸭传染性浆膜炎", "species": ["肉鸭", "种鸭", "番鸭"], "symptoms": ["精神萎靡/采食下降", "腹泻/拉稀/绿色粪便", "神经症状/扭颈/瘫痪", "关节肿大/跛行", "心包炎/肝周炎/气囊炎", "死亡率高/急性死亡"], "diseaseId": 2}, {"name": "鸭病毒性肝炎", "species": ["肉鸭"], "symptoms": ["精神萎靡/采食下降", "神经症状/扭颈/瘫痪", "肝脏出血/坏死", "雏鸭高死亡率（1周龄内）"], "diseaseId": 3}, {"name": "呼肠孤病毒病", "species": ["肉鸭", "种鸭", "肉鹅", "种鹅", "番鸭"], "symptoms": ["精神萎靡/采食下降", "腹泻/拉稀/绿色粪便", "脾脏肿大/坏死", "死亡率高/急性死亡"], "diseaseId": 1}, {"name": "细小病毒病", "species": ["肉鸭", "种鸭", "肉鹅", "种鹅", "番鸭"], "symptoms": ["精神萎靡/采食下降", "腹泻/拉稀/绿色粪便", "短喙/生长迟缓/大舌", "死亡率高/急性死亡", "雏鸭高死亡率（1周龄内）"], "diseaseId": 4}, {"name": "坦布苏病毒病", "species": ["肉鸭", "种鸭", "蛋鸭", "肉鹅", "种鹅"], "symptoms": ["精神萎靡/采食下降", "产蛋下降/软壳蛋", "神经症状/扭颈/瘫痪"], "diseaseId": 5}, {"name": "雏鹅痛风", "species": ["肉鹅", "种鹅"], "symptoms": ["精神萎靡/采食下降", "腹泻/拉稀/绿色粪便", "肾肿/痛风", "死亡率高/急性死亡", "雏鸭高死亡率（1周龄内）"], "diseaseId": 6}, {"name": "禽流感", "species": ["肉鸭", "种鸭", "蛋鸭", "肉鹅", "种鹅"], "symptoms": ["精神萎靡/采食下降", "呼吸困难/咳嗽/打喷嚏", "产蛋下降/软壳蛋", "死亡率高/急性死亡", "皮下水肿"], "diseaseId": 7}, {"name": "鸭瘟", "species": ["肉鸭", "种鸭", "蛋鸭", "肉鹅", "种鹅"], "symptoms": ["精神萎靡/采食下降", "腹泻/拉稀/绿色粪便", "肝脏出血/坏死", "死亡率高/急性死亡"], "diseaseId": 8}, {"name": "大肠杆菌病", "species": ["肉鸭", "种鸭", "蛋鸭", "肉鹅", "种鹅", "番鸭"], "symptoms": ["精神萎靡/采食下降", "腹泻/拉稀/绿色粪便", "心包炎/肝周炎/气囊炎", "关节肿大/跛行", "产蛋下降/软壳蛋"], "diseaseId": 9}, {"name": "圆环病毒感染", "species": ["肉鸭", "种鸭", "番鸭"], "symptoms": ["精神萎靡/采食下降", "短喙/生长迟缓/大舌", "腹泻/拉稀/绿色粪便", "免疫抑制/易继发感染"], "diseaseId": null}, {"name": "霉菌感染", "species": ["肉鸭", "种鸭", "蛋鸭", "肉鹅", "种鹅"], "symptoms": ["精神萎靡/采食下降", "呼吸困难/咳嗽/打喷嚏", "腹泻/拉稀/绿色粪便"], "diseaseId": null}, {"name": "坏死性肠炎", "species": ["肉鸭", "种鸭", "蛋鸭", "肉鹅"], "symptoms": ["腹泻/拉稀/绿色粪便", "肠道出血/坏死", "精神萎靡/采食下降"], "diseaseId": 11}, {"name": "热应激", "species": ["肉鸭", "种鸭", "蛋鸭", "肉鹅", "种鹅"], "symptoms": ["精神萎靡/采食下降", "呼吸困难/咳嗽/打喷嚏", "产蛋下降/软壳蛋", "死亡率高/急性死亡"], "diseaseId": 10}, {"name": "支原体感染", "species": ["肉鸭", "种鸭", "蛋鸭", "肉鹅"], "symptoms": ["呼吸困难/咳嗽/打喷嚏", "精神萎靡/采食下降"], "diseaseId": 12}];
-window.__DATA__.diseaseData=[{"id": 1, "name": "呼肠孤病毒病", "solutions": [{"title": "肉鸭早期预防", "products": "稳康宁R 0.8ml/只（1日龄）", "dosage": "注射", "note": "覆盖鸭细小+小鹅瘟+新型呼肠孤"}, {"title": "肉鸭紧急治疗", "products": "稳康宁R 1.5ml/kg + 速倍林400kg/4g", "dosage": "注射", "note": "配合使用降低应激继发感染"}, {"title": "种鸭全程方案", "products": "1日龄泛易平D 2羽份 → 60日龄3羽份 → 开产前坦布舒T 1ml", "dosage": "—", "note": "一针双防坦布舒T覆盖种禽开产前核心需求"}, {"title": "种鹅全程方案", "products": "1日龄泛易平D 2羽份 → 60日龄3羽份 → 开产前坦布舒T 1.2ml", "dosage": "—", "note": "同种鸭方案，种鹅剂量略高"}, {"title": "环境消毒", "products": "卫清宁 1:400", "dosage": "带鸭消毒，3-5次/周", "note": "日常预防性消毒"}]}, {"id": 2, "name": "鸭传染性浆膜炎", "solutions": [{"title": "肉鸭雏鸭免疫", "products": "雅易安 0.2ml/只 + 倍扶欣 10ml/羽", "dosage": "5-7日龄，颈部皮下注射", "note": "雅易安覆盖1+2型，倍扶欣配合降低应激"}, {"title": "种鸭首免", "products": "雅易安/雅易安T 0.2ml/只", "dosage": "5-10日龄，颈部皮下注射", "note": "雅易安T为区域定制型，11型为全国优势流行型"}, {"title": "种鸭二免", "products": "雅易安/雅易安T 0.3ml/只", "dosage": "5-7周龄", "note": "加强免疫"}, {"title": "高发区治疗", "products": "速倍林 + 克利优/新痢强/立本康 + 福欣", "dosage": "注射+饮水", "note": "细菌继发感染配合治疗"}]}, {"id": 3, "name": "鸭病毒性肝炎", "solutions": [{"title": "1日龄预防", "products": "雅稳妥 250ml + 速倍林 0.2g", "dosage": "0.5ml/只，混合注射", "note": "雅稳妥覆盖鸭肝1+3型，速倍林降低继发感染"}, {"title": "紧急治疗", "products": "雅稳妥 + 速倍林 0.2g", "dosage": "1.5ml/kg（最低1.5ml），注射", "note": "治疗剂量加倍，后用肝肾宝饮水保肝护肾"}]}, {"id": 4, "name": "细小病毒病", "solutions": [{"title": "1-2日龄预防", "products": "稳康宁/稳康宁D 0.8ml/只 + 速倍林 0.2g", "dosage": "注射", "note": "稳康宁D为经济型大包装"}, {"title": "7日龄加强", "products": "稳康宁 1.2ml/只", "dosage": "注射", "note": "加强免疫"}, {"title": "紧急治疗", "products": "稳康宁 + 速倍林 0.2g", "dosage": "1.5ml/kg，注射", "note": "配合速倍林降低细菌继发"}]}, {"id": 5, "name": "坦布苏病毒病", "solutions": [{"title": "肉鸭≤40天预防", "products": "亚黄平 1羽份/只", "dosage": "5-9日龄，滴鼻/点眼/饮水", "note": "亚黄平为坦布苏活苗，起效快3-5天"}, {"title": "肉鸭>40天预防", "products": "坦布舒 0.3ml/只", "dosage": "5-9日龄，颈部皮下注射", "note": "坦布舒为灭活苗，免疫期4个月"}, {"title": "种鸭完整程序", "products": "5-9日龄坦布舒0.3ml → 21日龄亚黄平 → 70日龄坦布舒0.8ml → 开产前1.0ml", "dosage": "分阶段免疫", "note": "种鸭需多次免疫保护产蛋期"}, {"title": "高发区紧急治疗", "products": "亚黄平 2-3倍量", "dosage": "紧急免疫", "note": "大剂量活苗紧急接种"}]}, {"id": 6, "name": "雏鹅痛风", "solutions": [{"title": "1日龄预防", "products": "稳康宁G 0.8ml/只", "dosage": "注射", "note": "含小鹅瘟+鹅星状病毒抗体"}, {"title": "7日龄加强", "products": "稳康宁G 1.2ml/只", "dosage": "注射", "note": "加强保护"}, {"title": "药物预防方案", "products": "瑞力肽 + 泛易平饮水 + 霉毒净 + 肝肾宝 + 精鉴肾清宁", "dosage": "拌料/饮水", "note": "肠道修复+脱霉+保肾通肾；注意：痛风时不能用肾可舒，用肝肾宝+精鉴肾清宁"}, {"title": "早期紧急治疗", "products": "稳康宁G 2-3ml/只", "dosage": "紧急注射", "note": "大剂量抗体紧急注射"}]}, {"id": 7, "name": "禽流感", "solutions": [{"title": "肉鸭/肉鹅免疫", "products": "禽元 0.3-0.5ml/只", "dosage": "14-21日龄，颈部皮下或肌肉注射", "note": "2-8周龄用0.5ml，8周龄以上用1.0ml"}, {"title": "种禽免疫程序", "products": "禽元/禽元加，开产前需4-5次H5免疫", "dosage": "2-8周龄0.5ml，8周龄以上1.0ml", "note": "种禽保护率高，金色Q为种鸭Ⅰ类高端规格"}, {"title": "免疫效果", "products": "禽元/禽元加", "dosage": "接种后14日产生免疫力，免疫期6个月", "note": "保护率90-100%"}]}, {"id": 8, "name": "鸭瘟", "solutions": [{"title": "种鸭/种鹅基础免疫", "products": "亚平宁 4羽份/只（预防最低量）", "dosage": "8周龄，肌肉注射", "note": "预防最少4羽份；免疫期9个月"}, {"title": "种鸭/种鹅加强免疫", "products": "亚平宁 4羽份/只", "dosage": "开产前（21周龄），肌肉注射", "note": "加强免疫保护整个产蛋期"}, {"title": "已发病紧急治疗", "products": "亚平宁 20羽份/只（治疗最低量）", "dosage": "紧急接种，肌肉注射", "note": "已发病时最少20羽份"}]}, {"id": 9, "name": "大肠杆菌病", "solutions": [{"title": "轻微感染", "products": "噬浚清 + 速倍林 + 克利优/新痢强", "dosage": "饮水+注射", "note": "噬菌体配合抗生素，无抗方案优选噬浚清"}, {"title": "严重感染", "products": "神奇一针：速倍林 + 恩诺沙星注射液 + 黄芪多糖注射液 + 康替优", "dosage": "混合注射", "note": "复方注射方案，全面覆盖"}, {"title": "饮水给药方案", "products": "莫克林（复方阿莫西林）饮水", "dosage": "每1L水0.5g，一日2次连用3-7日", "note": "克拉维酸钾增强抗β-内酰胺酶，对RA/E.coli高效"}, {"title": "混感弓形虫", "products": "速可能（复方磺胺嘧啶混悬液）", "dosage": "混饮，连用3-5日", "note": "混悬液剂型吸收好，覆盖弓形虫"}]}, {"id": 10, "name": "热应激", "solutions": [{"title": "一级热应激（THI 120-155）", "products": "富能维C 100g/吨水", "dosage": "饮水", "note": "VC+牛磺酸+茶多酚三效合一"}, {"title": "二级热应激（THI 155-165）", "products": "富能维C 200g + 三香正气 4瓶/吨水", "dosage": "饮水", "note": "联合使用"}, {"title": "三级热应激（THI 165+）", "products": "富能维C 200g + 三香正气 4瓶 + 热易舒 5包/吨水", "dosage": "饮水", "note": "卡巴匹林钙解热抗炎"}]}, {"id": 11, "name": "坏死性肠炎", "solutions": [{"title": "蛋鸭无抗方案", "products": "精鉴瑞畅清 + 泛易平饮水 × 5天 + 霉毒净拌料 × 7天", "dosage": "饮水+拌料", "note": "无抗方案，保护肠道"}, {"title": "产气荚膜梭菌首选", "products": "唯亮（青霉素V钾）", "dosage": "混饮，连用3-5日", "note": "2025新品，1日休药期+0日弃蛋期，产蛋期可用"}]}, {"id": 12, "name": "支原体感染", "solutions": [{"title": "首选方案", "products": "妙晶宁（沃尼妙林）", "dosage": "混饮", "note": "2025新品，比泰妙菌素剂量降30%+，休药期仅2日"}, {"title": "替代方案", "products": "泰妙新（泰妙菌素）或泰亮（泰万菌素）", "dosage": "混饮/混饲", "note": "截短侧耳素类/大环内酯类，支原体特效"}]}, {"id": 13, "name": "病毒细菌混感", "solutions": [{"title": "紧急注射方案", "products": "法康宁E/黄芪多糖 + 康替优 + 速倍林", "dosage": "1.5ml/kg，混合注射", "note": "法氏囊抗体+黄芪多糖+头孢三联"}, {"title": "饮水治疗方案", "products": "清解合剂 + 速倍林 + 新痢强 × 3天", "dosage": "饮水", "note": "清热解毒+抗菌"}]}];
+window.__DATA__.diseaseData=[{"id": 1, "name": "呼肠孤病毒病", "solutions": [{"title": "肉鸭早期预防", "products": "稳康宁R 0.8ml/只（1日龄）", "dosage": "注射", "note": "覆盖鸭细小+小鹅瘟+新型呼肠孤"}, {"title": "肉鸭紧急治疗", "products": "稳康宁R 1.5ml/kg + 速倍林400kg/4g", "dosage": "注射", "note": "配合使用降低应激继发感染"}, {"title": "种鸭全程方案", "products": "1日龄泛易平D 2羽份 → 60日龄3羽份 → 开产前坦布舒T 1ml", "dosage": "—", "note": "一针双防坦布舒T覆盖种禽开产前核心需求"}, {"title": "种鹅全程方案", "products": "1日龄泛易平D 2羽份 → 60日龄3羽份 → 开产前坦布舒T 1.2ml", "dosage": "—", "note": "同种鸭方案，种鹅剂量略高"}, {"title": "环境消毒", "products": "卫清宁 1:400", "dosage": "带鸭消毒，3-5次/周", "note": "日常预防性消毒"}]}, {"id": 2, "name": "鸭传染性浆膜炎", "solutions": [{"title": "肉鸭雏鸭免疫", "products": "雅易安 0.2ml/只 + 倍扶欣 10ml/羽", "dosage": "5-7日龄，颈部皮下注射", "note": "雅易安覆盖1+2型，倍扶欣配合降低应激"}, {"title": "种鸭首免", "products": "雅易安/雅易安T 0.2ml/只", "dosage": "5-10日龄，颈部皮下注射", "note": "雅易安T为区域定制型，11型为全国优势流行型"}, {"title": "种鸭二免", "products": "雅易安/雅易安T 0.3ml/只", "dosage": "5-7周龄", "note": "加强免疫"}, {"title": "高发区治疗", "products": "速倍林 + 克利优/新痢强/立本康 + 福欣", "dosage": "注射+饮水", "note": "细菌继发感染配合治疗"}]}, {"id": 3, "name": "鸭病毒性肝炎", "solutions": [{"title": "1日龄预防", "products": "雅稳妥 250ml + 速倍林 0.2g", "dosage": "0.5ml/只，混合注射", "note": "雅稳妥覆盖鸭肝1+3型，速倍林降低继发感染"}, {"title": "紧急治疗", "products": "雅稳妥 + 速倍林 0.2g", "dosage": "1.5ml/kg（最低1.5ml），注射", "note": "治疗剂量加倍，后用肝肾宝饮水保肝护肾"}]}, {"id": 4, "name": "细小病毒病", "solutions": [{"title": "1-2日龄预防", "products": "稳康宁/稳康宁D 0.8ml/只 + 速倍林 0.2g", "dosage": "注射", "note": "稳康宁D为经济型大包装"}, {"title": "7日龄加强", "products": "稳康宁 1.2ml/只", "dosage": "注射", "note": "加强免疫"}, {"title": "紧急治疗", "products": "稳康宁 + 速倍林 0.2g", "dosage": "1.5ml/kg，注射", "note": "配合速倍林降低细菌继发"}]}, {"id": 5, "name": "坦布苏病毒病", "solutions": [{"title": "肉鸭≤40天预防", "products": "亚黄平 1羽份/只", "dosage": "5-9日龄，滴鼻/点眼/饮水", "note": "亚黄平为坦布苏活苗，起效快3-5天"}, {"title": "肉鸭>40天预防", "products": "坦布舒 0.3ml/只", "dosage": "5-9日龄，颈部皮下注射", "note": "坦布舒为灭活苗，免疫期4个月"}, {"title": "种鸭完整程序", "products": "5-9日龄坦布舒0.3ml → 21日龄亚黄平 → 70日龄坦布舒0.8ml → 开产前1.0ml", "dosage": "分阶段免疫", "note": "种鸭需多次免疫保护产蛋期"}, {"title": "高发区紧急治疗", "products": "亚黄平 2-3倍量", "dosage": "紧急免疫", "note": "大剂量活苗紧急接种"}]}, {"id": 6, "name": "雏鹅痛风", "solutions": [{"title": "1日龄预防", "products": "稳康宁G 0.8ml/只", "dosage": "注射", "note": "含小鹅瘟+鹅星状病毒抗体"}, {"title": "7日龄加强", "products": "稳康宁G 1.2ml/只", "dosage": "注射", "note": "加强保护"}, {"title": "药物预防方案", "products": "瑞力肽 + 泛易平饮水 + 霉毒净 + 肝肾宝 + 精鉴肾清宁", "dosage": "拌料/饮水", "note": "肠道修复+脱霉+保肾通肾；注意：痛风时不能用肾可舒，用肝肾宝+精鉴肾清宁"}, {"title": "早期紧急治疗", "products": "稳康宁G 2-3ml/只", "dosage": "紧急注射", "note": "大剂量抗体紧急注射"}]}, {"id": 7, "name": "禽流感", "solutions": [{"title": "肉鸭/肉鹅免疫", "products": "禽元 0.3-0.5ml/只", "dosage": "14-21日龄，颈部皮下或肌肉注射", "note": "2-8周龄用0.5ml，8周龄以上用1.0ml"}, {"title": "种禽免疫程序", "products": "禽元/禽元加，开产前需4-5次H5免疫", "dosage": "2-8周龄0.5ml，8周龄以上1.0ml", "note": "种禽保护率高，金色Q为种鸭Ⅰ类高端规格"}, {"title": "免疫效果", "products": "禽元/禽元加", "dosage": "接种后14日产生免疫力，免疫期6个月", "note": "保护率90-100%"}]}, {"id": 8, "name": "鸭瘟", "solutions": [{"title": "种鸭/种鹅基础免疫", "products": "亚平宁 4羽份/只（预防最低量）", "dosage": "8周龄，肌肉注射", "note": "预防最少4羽份；免疫期9个月"}, {"title": "种鸭/种鹅加强免疫", "products": "亚平宁 4羽份/只", "dosage": "开产前（21周龄），肌肉注射", "note": "加强免疫保护整个产蛋期"}, {"title": "已发病紧急治疗", "products": "亚平宁 20羽份/只（治疗最低量）", "dosage": "紧急接种，肌肉注射", "note": "已发病时最少20羽份"}]}, {"id": 9, "name": "大肠杆菌病", "solutions": [{"title": "轻微感染", "products": "噬浚清 + 速倍林 + 克利优/新痢强", "dosage": "饮水+注射", "note": "噬菌体配合抗生素，无抗方案优选噬浚清"}, {"title": "严重感染", "products": "神奇一针：速倍林 + 恩诺沙星注射液 + 黄芪多糖注射液 + 康替优", "dosage": "混合注射", "note": "复方注射方案，全面覆盖"}, {"title": "饮水给药方案", "products": "莫克林（复方阿莫西林）饮水", "dosage": "每1L水0.5g，一日2次连用3-7日", "note": "克拉维酸钾增强抗β-内酰胺酶，对RA/E.coli高效"}, {"title": "混感弓形虫", "products": "速可能（复方磺胺嘧啶混悬液）", "dosage": "混饮，连用3-5日", "note": "混悬液剂型吸收好，覆盖弓形虫"}]}, {"id": 10, "name": "热应激", "solutions": [{"title": "一级热应激（THI 120-155）", "products": "富能维C 100g/吨水", "dosage": "饮水，全程自由饮用", "note": "VC+牛磺酸+茶多酚三效合一"}, {"title": "二级热应激（THI 155-165）", "products": "上午（9-11点）富能维C 200g/吨水；下午三香正气4瓶/吨水", "dosage": "饮水", "note": "联合使用"}, {"title": "三级热应激（THI 165+）", "products": "11点前：富能维C 200g/吨水+三香正气4瓶/吨；11点后：富能维C 200g+三香正气4瓶+热易舒5包（50%卡巴匹林钙）+肾可舒200g/吨", "dosage": "饮水", "note": "卡巴匹林钙解热抗炎；肾可舒保肾通肾，防止大量死亡/中暑时肾脏损伤"}]}, {"id": 11, "name": "坏死性肠炎", "solutions": [{"title": "蛋鸭无抗方案", "products": "精鉴瑞畅清 + 泛易平饮水 × 5天 + 霉毒净拌料 × 7天", "dosage": "饮水+拌料", "note": "无抗方案，保护肠道"}, {"title": "产气荚膜梭菌首选", "products": "唯亮（青霉素V钾）", "dosage": "混饮，连用3-5日", "note": "2025新品，1日休药期+0日弃蛋期，产蛋期可用"}]}, {"id": 12, "name": "支原体感染", "solutions": [{"title": "首选方案", "products": "妙晶宁（沃尼妙林）", "dosage": "混饮", "note": "2025新品，比泰妙菌素剂量降30%+，休药期仅2日"}, {"title": "替代方案", "products": "泰妙新（泰妙菌素）或泰亮（泰万菌素）", "dosage": "混饮/混饲", "note": "截短侧耳素类/大环内酯类，支原体特效"}]}, {"id": 13, "name": "病毒细菌混感", "solutions": [{"title": "紧急注射方案", "products": "法康宁E/黄芪多糖 + 康替优 + 速倍林", "dosage": "1.5ml/kg，混合注射", "note": "法氏囊抗体+黄芪多糖+头孢三联"}, {"title": "饮水治疗方案", "products": "清解合剂 + 速倍林 + 新痢强 × 3天", "dosage": "饮水", "note": "清热解毒+抗菌"}]}];
 window.__DATA__.diseaseDetails={"1": {"pathogen": "新型鸭呼肠孤病毒(NDRV)、鸭呼肠孤病毒(MDRV)、鹅呼肠孤病毒(GRV)，属于呼肠孤病毒科", "epidemiology": "2026年1-4月阳性率13.5%（192/1423），1月17.1%逐月下降至3月13.4%；湖北(28.9%)、河北(20.0%)、河南(18.5%)为高发区", "susceptibleAnimals": "肉鸭、蛋鸭、种鸭、肉鹅、种鹅", "susceptibleAges": "1周龄(14.1%)、3周龄(13.5%)、4周龄(15.1%)、25-43周龄(24.0%产蛋期)", "clinicalSymptoms": ["脾脏肿大坏死（最特征性病变）", "肝脏出血/坏死", "生长迟缓/料肉比升高", "种鸭产蛋下降"], "necropsyFeatures": ["脾脏坏死灶（最典型）", "肝脏出血点/斑", "肠道出血", "法氏囊萎缩"]}, "2": {"pathogen": "鸭疫里默氏杆菌(Ra)，血清型以1型、2型为主，部分地区5型、11型流行", "epidemiology": "2026年1-4月阳性率34.8%（129/371），极高风险；全年均可感染，无明显季节性；血清型趋于多元化", "susceptibleAnimals": "肉鸭最易感，种鸭、蛋鸭、肉鹅、番鸭均可感染", "susceptibleAges": "1-3周龄雏鸭高发，死亡率10-30%；种鸭各周龄均可感染", "clinicalSymptoms": ["精神萎靡/采食下降", "绿色腹泻", "神经症状（扭颈/转圈）", "关节肿大/跛行", "眼鼻分泌物增多"], "necropsyFeatures": ["心包炎/肝周炎/气囊炎（三炎）", "肝脏表面纤维素性渗出", "脾脏肿大", "关节腔积液"]}, "3": {"pathogen": "鸭肝炎病毒(DHV)，以I型为主，III型检出率极低", "epidemiology": "2026年1-4月阳性率I型2.1%、III型0.5%，低风险水平", "susceptibleAnimals": "肉鸭最易感，蛋鸭育雏期", "susceptibleAges": "3周龄以内雏鸭最易感，死亡率可达50-90%", "clinicalSymptoms": ["突然发病/急性死亡", "神经症状（角弓反张）", "腹泻", "精神极度萎靡"], "necropsyFeatures": ["肝脏肿大/出血斑（最特征）", "胆囊充盈", "脾脏肿大", "肾脏肿大出血"]}, "4": {"pathogen": "鹅细小病毒(GPV)、鸭细小病毒(DPV)、番鸭细小病毒(MDPV)", "epidemiology": "2026年1-4月阳性率11.7%（104/890），3月高峰16.8%后4月回落8.4%；福建(28.6%)、广东(20.3%)高发", "susceptibleAnimals": "肉鸭、蛋鸭、番鸭、肉鹅、种鹅", "susceptibleAges": "3周龄(31.7%)最易感，4周龄(17.3%)、5周龄(15.4%)", "clinicalSymptoms": ["短喙/大舌（SDSI最典型）", "生长迟缓/料肉比升高", "腹泻", "种鸭垂直传播"], "necropsyFeatures": ["舌缩短/变形", "长骨短缩", "胸腺萎缩", "肠道卡他性炎症"]}, "5": {"pathogen": "鸭坦布苏病毒(DTMUV)，黄病毒科", "epidemiology": "2026年1-4月阳性率1.4%（13/922），持续下降，4月降至0%；夏秋季高发", "susceptibleAnimals": "蛋鸭、种鸭最易感，肉鸭、肉鹅均可感染", "susceptibleAges": "产蛋期种鸭/蛋鸭最易感，4周龄(38.5%)、25-43周龄(30.8%)", "clinicalSymptoms": ["产蛋急剧下降（最典型）", "软壳蛋/无壳蛋增多", "精神萎靡", "采食下降", "腹泻"], "necropsyFeatures": ["卵巢出血/萎缩", "卵泡变形/软化", "输卵管炎", "肝脏轻微病变"]}, "6": {"pathogen": "鹅星状病毒(GoAstV)，引起内脏型和关节型痛风", "epidemiology": "2026年流行强度远超往年，已成为鹅养殖重点威胁", "susceptibleAnimals": "肉鹅、种鹅", "susceptibleAges": "1-3周龄雏鹅最易感", "clinicalSymptoms": ["精神萎靡/采食下降", "腹泻/白色稀粪", "关节肿大/跛行", "死亡率高"], "necropsyFeatures": ["肾脏肿大/尿酸盐沉积（最典型）", "关节腔尿酸盐", "输尿管尿酸盐堵塞", "内脏表面尿酸盐"]}, "7": {"pathogen": "H5亚型(2.3.4.4b5.5为主)、H7亚型、H6亚型(15.6%)、H9亚型(1.7%)", "epidemiology": "H5+H7通过疫苗控制较好；H6阳性率15.6%高风险；H9阳性率1.7%低风险；内蒙古/新疆检出率异常", "susceptibleAnimals": "全品种易感，蛋鸭、种鸭产蛋期影响大", "susceptibleAges": "各日龄均可感染，产蛋期经济损失最大", "clinicalSymptoms": ["呼吸困难/咳嗽", "产蛋下降/软壳蛋", "精神萎靡", "死亡率升高", "皮下水肿（高致病性）"], "necropsyFeatures": ["全身出血性病变（高致病性）", "胰腺坏死/出血", "腺胃出血", "心肌条纹状坏死"]}, "8": {"pathogen": "鸭瘟病毒(DEV)，疱疹病毒科", "epidemiology": "2026年1-4月阳性率4.6%（19/411），1月12.1%明显下降至3-4月0-1.7%", "susceptibleAnimals": "蛋鸭、肉鸭、种鸭", "susceptibleAges": "16周龄(42.1%)最易感，13周龄(15.8%)", "clinicalSymptoms": ["高热/体温升高", "流泪/眼睑水肿", "腹泻/绿色粪便", "头颈肿胀（大头瘟）"], "necropsyFeatures": ["食道黏膜出血/溃疡/假膜", "肝脏出血/坏死点", "泄殖腔充血/出血", "肠黏膜出血/坏死"]}, "9": {"pathogen": "大肠杆菌(E.coli)，O1/O2/O78为常见血清型，耐药性问题严重", "epidemiology": "2026年1-4月阳性率30.9%（579/1871），极高风险，全年高发", "susceptibleAnimals": "全品种易感", "susceptibleAges": "雏鸭期（脐炎）、产蛋期（输卵管炎）", "clinicalSymptoms": ["精神萎靡/采食下降", "腹泻", "关节肿大", "产蛋下降/软壳蛋（种禽）"], "necropsyFeatures": ["心包炎/肝周炎/气囊炎", "卵黄性腹膜炎（种禽）", "脐部感染（雏鸭）", "输卵管炎"]}, "10": {"pathogen": "非传染性，高温环境引起", "epidemiology": "夏季5-9月高发，THI>120即需关注", "susceptibleAnimals": "全品种，种禽/蛋禽更敏感", "susceptibleAges": "各日龄，产蛋期影响最大", "clinicalSymptoms": ["张口呼吸/翅膀下垂", "采食下降/饮水增加", "产蛋下降", "死亡增加"], "necropsyFeatures": ["肺充血/水肿", "肌肉苍白/软化", "脑膜充血", "心肌出血"]}, "11": {"pathogen": "A型/C型产气荚膜梭菌，条件性致病", "epidemiology": "高密度饲养、应激、饲料突变可诱发", "susceptibleAnimals": "肉鸭、蛋鸭、肉鹅", "susceptibleAges": "2-8周龄多发", "clinicalSymptoms": ["腹泻/黑色或带血粪便", "精神萎靡", "生长迟缓", "急性死亡"], "necropsyFeatures": ["肠道膨胀/充气", "肠黏膜坏死/脱落", "肝脏肿大", "腹腔恶臭"]}, "12": {"pathogen": "水禽支原体（Mycoplasma），呼吸道条件性致病", "epidemiology": "春秋季高发，与饲养密度和通风相关", "susceptibleAnimals": "肉鸭、蛋鸭、肉鹅", "susceptibleAges": "各日龄，4-8周龄多发", "clinicalSymptoms": ["咳嗽/打喷嚏", "流鼻涕/眶下窦肿胀", "呼吸道啰音", "生长迟缓"], "necropsyFeatures": ["气囊炎/气囊混浊", "鼻腔/眶下窦黏液", "肺炎", "纤维素性肝周炎"]}, "13": {"pathogen": "多种病毒+细菌混合感染，常见法氏囊+大肠杆菌等", "epidemiology": "免疫力低下时高发", "susceptibleAnimals": "全品种", "susceptibleAges": "雏禽和免疫空白期", "clinicalSymptoms": ["高死亡率", "多系统症状", "常规治疗无效"], "necropsyFeatures": ["多脏器出血/坏死", "法氏囊萎缩/出血", "心包炎/肝周炎"]}};
 window.__DATA__.mappings={"symptomTagMap": {"拉稀/腹泻": ["拉稀", "腹泻"], "绿粪": ["绿粪"], "死亡/死淘高": ["死亡", "死淘"], "摇头/扭颈": ["摇头", "扭颈", "转圈"], "产蛋下降": ["产蛋下降"], "软壳蛋": ["软壳蛋"], "咳嗽/喘": ["咳嗽", "喘", "呼吸困难"], "采食下降": ["采食下降", "不吃"], "不长/消瘦": ["不长", "消瘦"], "关节肿/跛行": ["关节肿", "跛行"], "肿头/眼肿": ["肿头", "眼肿"], "中暑/热应激": ["中暑", "热应激", "天热"]}, "lesionMap": {"肝出血/坏死": ["鸭病毒性肝炎", "禽流感", "大肠杆菌病"], "脾肿大/坏死": ["呼肠孤病毒病", "禽流感"], "心包炎": ["鸭传染性浆膜炎", "大肠杆菌病"], "肝周炎": ["鸭传染性浆膜炎", "大肠杆菌病"], "气囊炎": ["鸭传染性浆膜炎", "大肠杆菌病", "支原体感染"], "肠道出血": ["坏死性肠炎", "大肠杆菌病", "禽流感"], "肾肿/痛风": ["雏鹅痛风", "禽流感"], "皮下水肿": ["鸭传染性浆膜炎"], "法氏囊出血": ["法氏囊病"], "卵泡变形": ["坦布苏病毒病", "大肠杆菌病"]}, "symptomDiseaseMap": {"死亡": ["鸭传染性浆膜炎", "鸭病毒性肝炎", "大肠杆菌病", "禽流感"], "死淘": ["鸭传染性浆膜炎", "鸭病毒性肝炎", "大肠杆菌病"], "拉稀": ["大肠杆菌病", "坏死性肠炎", "沙门菌病"], "腹泻": ["大肠杆菌病", "坏死性肠炎", "沙门菌病"], "绿粪": ["鸭传染性浆膜炎", "大肠杆菌病"], "摇头": ["鸭传染性浆膜炎", "大肠杆菌病"], "扭颈": ["鸭传染性浆膜炎"], "转圈": ["鸭传染性浆膜炎"], "产蛋下降": ["坦布苏病毒病"], "软壳蛋": ["坦布苏病毒病"], "咳嗽": ["支原体感染"], "喘": ["支原体感染", "热应激"], "呼吸困难": ["支原体感染", "禽流感"], "采食下降": ["坦布苏病毒病", "支原体感染", "热应激"], "不吃": ["坦布苏病毒病", "大肠杆菌病", "支原体感染"], "不长": ["细小病毒病", "呼肠孤病毒病"], "消瘦": ["呼肠孤病毒病", "大肠杆菌病"], "关节肿": ["鸭传染性浆膜炎", "雏鹅痛风"], "跛行": ["鸭传染性浆膜炎", "雏鹅痛风"], "肿头": ["大肠杆菌病", "禽流感"], "眼肿": ["大肠杆菌病", "支原体感染"], "中暑": ["热应激"], "热应激": ["热应激"], "天热": ["热应激"]}, "allLesionTags": ["肝出血/坏死", "脾肿大/坏死", "心包炎", "肝周炎", "气囊炎", "肠道出血", "肾肿/痛风", "皮下水肿", "法氏囊出血", "卵泡变形"], "directDiseaseNames": ["鸭肝", "浆膜炎", "大肠", "呼肠孤", "坦布苏", "痛风", "禽流感", "鸭瘟", "球虫", "小鹅瘟", "法氏囊", "支原体", "细小", "圆环", "热应激"]};
 window.__DATA__.productDosage={"24": {"waterMix": "800-1000kg体重/瓶(约1600-2000斤水)", "courseDays": 3, "mixMethod": "集中饮水，连用3天"}, "26": {"waterMix": "600斤水/4g", "courseDays": 1, "mixMethod": "配合抗体注射时0.2g/瓶"}, "27": {"courseDays": 1, "mixMethod": "配合疫苗/抗体肌注，长效120h"}, "28": {"waterMix": "600斤水", "courseDays": "3-5", "mixMethod": "饮水，连用4天（输卵管炎配合卵益舒）"}, "29": {"waterMix": "300斤水/100g", "feedMix": "200斤料/100g", "courseDays": "3-5", "mixMethod": "集中饮水或拌料"}, "30": {"waterMix": "前期15000只/袋，后期8000-10000只/袋", "courseDays": 3, "mixMethod": "集中饮水"}, "32": {"waterMix": "一级100g/吨水；二级200g/吨+三香正气4瓶/吨；三级200g/吨+三香正气+5包/吨", "courseDays": "按需", "mixMethod": "分级饮水"}, "33": {"waterMix": "带鸭消毒1:400(3-5次/周)；饮水消毒1:1000(4-6h，2-3次/周)", "mixMethod": "喷洒/饮水"}, "37": {"waterMix": "2000斤水/500g", "feedMix": "1000斤料/500g", "courseDays": 5, "mixMethod": "饮水或拌料，每月2次"}, "38": {"waterMix": "400-600斤水/袋", "feedMix": "1000斤料/kg", "courseDays": "5-7", "mixMethod": "饮水或拌料，每月1-2次"}, "39": {"waterMix": "300斤水", "courseDays": "3-5", "mixMethod": "集中饮水"}, "40": {"waterMix": "1000斤水/500ml", "courseDays": "4-5", "mixMethod": "自由饮水"}, "41": {"waterMix": "一级100g/吨水；二级200g/吨水；三级200g/吨水", "courseDays": "按需", "mixMethod": "热应激分级饮水"}, "49": {"waterMix": "第1天1000斤水/瓶，第2-3天1500斤水/瓶", "courseDays": "3-5", "mixMethod": "集中饮水"}, "50": {"waterMix": "500斤水/100g", "courseDays": "3-5", "mixMethod": "集中饮水"}, "51": {"feedMix": "500斤料/100g", "courseDays": "5-7", "mixMethod": "混饲，连用5-7天"}, "52": {"waterMix": "400斤水/100g", "feedMix": "200斤料/100g", "courseDays": "3-5", "mixMethod": "混饮或混饲"}, "53": {"waterMix": "400-500斤水/100g(袋)", "courseDays": "3-5", "mixMethod": "集中饮水，给药前停水1-2h"}, "54": {"waterMix": "500斤水/袋", "courseDays": "3-5", "mixMethod": "集中饮水"}, "57": {"waterMix": "400斤水/袋", "courseDays": "5-7", "mixMethod": "集中饮水"}, "72": {"waterMix": "3500只/瓶", "courseDays": 3, "mixMethod": "雏禽开口饮水"}, "73": {"waterMix": "800斤水/500ml", "courseDays": "3-5", "mixMethod": "集中饮水"}, "74": {"waterMix": "800斤水/1000ml", "courseDays": "3-5", "mixMethod": "集中饮水"}, "75": {"waterMix": "300斤水/100g", "courseDays": "3-5", "mixMethod": "集中饮水"}, "76": {"waterMix": "300斤水/100g", "courseDays": "3-5", "mixMethod": "集中饮水"}, "77": {"waterMix": "500斤水/250ml", "courseDays": "3-5", "mixMethod": "集中饮水"}, "78": {"courseDays": 1, "mixMethod": "内服，4000斤体重/500g"}, "79": {"waterMix": "600斤水/瓶", "courseDays": "5-7", "mixMethod": "自由饮水"}, "80": {"waterMix": "2.5L兑水1665-2500L(约3330-5000斤水)", "courseDays": "5-7", "mixMethod": "自由饮水"}, "81": {"waterMix": "250斤水/100g", "courseDays": "3-5", "mixMethod": "集中饮水"}, "82": {"waterMix": "4瓶/吨水", "courseDays": "3-5", "mixMethod": "自由饮水"}, "83": {"waterMix": "600斤水/100g(32.5%)", "courseDays": "3-5", "mixMethod": "集中饮水"}, "84": {"courseDays": 1, "mixMethod": "内服0.5-1ml/kg体重"}, "85": {"waterMix": "0.1-0.2%自由饮水6h×2天", "courseDays": 2, "mixMethod": "酸化饮水，免疫时停用1天"}, "86": {"waterMix": "500斤水/袋", "feedMix": "1000斤料/1kg", "courseDays": "5-7", "mixMethod": "饮水或拌料"}, "92": {"waterMix": "800-1000kg体重/瓶(约1600-2000斤水)", "courseDays": 3, "mixMethod": "集中饮水"}, "95": {"waterMix": "2000斤水/kg", "courseDays": "3-5", "mixMethod": "集中饮水"}, "96": {"courseDays": 1, "mixMethod": "注射，1-3日龄2-3羽份，60日龄3羽份"}, "97": {"courseDays": 1, "mixMethod": "紧急注射，1.5ml/kg体重"}, "98": {"courseDays": 1, "mixMethod": "紧急注射，1.5ml/只"}, "99": {"waterMix": "300斤水", "courseDays": "5-7", "mixMethod": "集中饮水"}, "100": {"waterMix": "500斤水/袋", "courseDays": "5-7", "mixMethod": "集中饮水"}, "101": {"waterMix": "2000斤水", "courseDays": 4, "mixMethod": "集中饮水"}, "102": {"waterMix": "500斤/500ml", "courseDays": 5, "mixMethod": "集中饮水"}, "103": {"waterMix": "1.5g/L饮水", "courseDays": 5, "mixMethod": "集中饮水"}, "104": {"courseDays": 1, "mixMethod": "注射，配合速倍林+康替优"}, "105": {"courseDays": 1, "mixMethod": "注射，配合速倍林+康替优+法康宁"}, "106": {"waterMix": "400-600斤水/袋", "feedMix": "500斤料/袋", "courseDays": "5-7", "mixMethod": "饮水或拌料"}, "107": {"waterMix": "600斤水/袋", "courseDays": 4, "mixMethod": "集中饮水，配合莫克林"}};
@@ -1831,8 +1845,8 @@ if(window.__onDataReady)window.__onDataReady();
                     <span class="qa-ai-key-status" id="aiKeyStatus"></span>
                 </div>
                 <!-- AI对话区（默认隐藏） -->
-                <div id="aiChatArea" style="display:none;flex-direction:column;min-height:300px;margin-bottom:12px;">
-                    <div id="aiChatMessages" style="flex:1;overflow-y:auto;padding:4px 0;max-height:60vh;"></div>
+                <div id="aiChatArea" style="display:none;flex-direction:column;margin-bottom:12px;">
+                    <div id="aiChatMessages" style="flex:1;overflow-y:auto;padding:4px 0;max-height:50vh;"></div>
                 </div>
                 
                 <div class="diagnostic-step">
@@ -2673,6 +2687,7 @@ if(window.__onDataReady)window.__onDataReady();
             `;
         });
         
+        html += '<div style="margin-top:12px;padding:8px 12px;background:#fff8e1;border-radius:8px;font-size:11px;color:#8d6e00;line-height:1.5;">⚠️ 以上为AI智能鉴别诊断，仅供参考。具体用药方案及疾病确诊，请咨询瑞普生物技术支持。</div>';
         html += '</div>';
         resultDiv.innerHTML = html;
         // 自动保存诊断记录到病例
@@ -2784,12 +2799,22 @@ if(window.__onDataReady)window.__onDataReady();
                 </div>
             </div>
             <!-- 注射模式：单只用量 -->
+            <div class="calc-form-group">
+                <div class="calc-label">⚠️ 剂量倍数</div>
+                <div style="display:flex;gap:6px;">
+                    <button class="calc-bird-btn active" data-dose="1" onclick="setDoseMultiplier(1,this)">1倍(标准)</button>
+                    <button class="calc-bird-btn" data-dose="1.5" onclick="setDoseMultiplier(1.5,this)">1.5倍</button>
+                    <button class="calc-bird-btn" data-dose="2" onclick="setDoseMultiplier(2,this)">2倍</button>
+                    <button class="calc-bird-btn" data-dose="custom" onclick="setDoseMultiplier('custom',this)">自定义</button>
+                </div>
+                <input type="number" class="calc-input" id="customDoseMultiplier" placeholder="自定义倍数，如2.5" style="display:none;margin-top:6px;" oninput="doseMultiplier=parseFloat(this.value)||1;autoCalc2()">
+            </div>
             <div class="calc-form-group" id="calcInjectGroup" style="display:none;">
-                <div class="calc-label">单只用量</div>
+                <div class="calc-label">单只用量（参考：<span id="refDosageHint">—</span>）</div>
                 <input type="text" class="calc-input" id="calcDosagePerAnimal" placeholder="如 0.5ml" oninput="autoCalc2()">
             </div>
             <div class="calc-form-group">
-                <div class="calc-label">包装规格</div>
+                <div class="calc-label">包装规格（参考：<span id="refSpecHint">—</span>）</div>
                 <select class="calc-select" id="calcSpec" onchange="autoCalc2();updatePriceUnit();toggleCustomSpec()"></select>
                 <div id="customSpecGroup" style="display:none;margin-top:6px;">
                     <div style="display:flex;gap:6px;">
@@ -2805,7 +2830,7 @@ if(window.__onDataReady)window.__onDataReady();
                 </div>
             </div>
             <div class="calc-form-group">
-                <div class="calc-label">💰 单价（元/规格单位，选填）</div>
+                <div class="calc-label">💰 单价（元/瓶，手动输入）</div>
                 <div style="display:flex;gap:6px;align-items:center;">
                     <input type="number" class="calc-input" id="calcPrice" placeholder="如 25" oninput="autoCalc2()" style="flex:1;">
                     <span style="font-size:12px;color:var(--text-light);white-space:nowrap;" id="calcPriceUnit">元/瓶</span>
@@ -2934,6 +2959,12 @@ if(window.__onDataReady)window.__onDataReady();
         document.getElementById('calcForm').style.display = 'block';
         document.getElementById('calcSelectedProduct').textContent = p.name;
         document.getElementById('calcDosageRef').textContent = '用量：' + (p.dosage || '—');
+        // 更新参考用量提示
+        var refHint = document.getElementById('refDosageHint');
+        if (refHint) refHint.textContent = p.dosage || '手动输入';
+        // 更新参考规格提示
+        var refSpecHint = document.getElementById('refSpecHint');
+        if (refSpecHint) refSpecHint.textContent = p.specs || '手动输入';
 
         // 显示实用剂量信息
         var extra = productDosage[p.id];
@@ -2969,9 +3000,11 @@ if(window.__onDataReady)window.__onDataReady();
 
         var specSelect = document.getElementById('calcSpec');
         var specs = parseSpecs(p.specs);
-        specSelect.innerHTML = specs.map(function(s) {
+        var specOptions = specs.map(function(s) {
             return '<option value="' + s.volume + '|' + s.unit + '|' + (s.boxCount || 0) + '">' + s.label + '</option>';
         }).join('');
+        specOptions += '<option value="0|手动输入|0">✏️ 手动输入规格</option>';
+        specSelect.innerHTML = specOptions;
         // 更新价格单位标签
         updatePriceUnit();
         // 显示/隐藏自定义规格输入
@@ -3119,7 +3152,24 @@ if(window.__onDataReady)window.__onDataReady();
         document.getElementById('calcInjectGroup').style.display = mode === 'inject' ? 'block' : 'none';
     }
 
-    function autoCalc2() {
+    
+    var doseMultiplier = 1;
+    function setDoseMultiplier(val, btn) {
+        document.querySelectorAll('[data-dose]').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var customInput = document.getElementById('customDoseMultiplier');
+        if (val === 'custom') {
+            customInput.style.display = 'block';
+            customInput.focus();
+            doseMultiplier = parseFloat(customInput.value) || 1;
+        } else {
+            customInput.style.display = 'none';
+            doseMultiplier = val;
+        }
+        autoCalc2();
+    }
+
+function autoCalc2() {
         var count = parseInt(document.getElementById('calcAnimalCount').value);
         if (count > 0 && calcSelectedProductId) { doCalculate2(); }
     }
@@ -3145,13 +3195,14 @@ if(window.__onDataReady)window.__onDataReady();
             var dosageNum = parseFloat(dosageStr);
             var isDose = dosageStr.indexOf('羽') >= 0;
             var unitLabel = isDose ? '羽份' : 'ml';
-            var totalDose = count * dosageNum;
+            var actualDosage = dosageNum * doseMultiplier;
+            var totalDose = count * actualDosage;
             var bottles = Math.ceil(totalDose / volume);
             var boxes = Math.ceil(bottles / boxCount);
 
             html += '<div class="calc-result-card"><h4>💉 注射方案</h4>';
             html += '<p>养殖数量：<span class="val">' + count + '只</span></p>';
-            html += '<p>单只用量：<span class="val2">' + dosageStr + '</span></p>';
+            html += '<p>单只用量：<span class="val2">' + dosageStr + '</span>' + (doseMultiplier > 1 ? ' × ' + doseMultiplier + '倍 = <span class="val2">' + actualDosage + unitLabel + '</span>' : '') + '</p>';
             html += '<p>总用量：<span class="val">' + totalDose + unitLabel + '</span></p>';
             html += '<p>需要：<span class="val">' + bottles + '瓶</span>（' + boxes + '箱，' + boxCount + '瓶/箱）</p>';
             html += '</div>';
@@ -3195,7 +3246,7 @@ if(window.__onDataReady)window.__onDataReady();
                         perUnitAmount = 1;
                         perUnitLabel = '袋';
                     }
-                    var unitsNeeded = Math.ceil(totalWaterJin / waterPerUnit);
+                    var unitsNeeded = Math.ceil(totalWaterJin / waterPerUnit * doseMultiplier);
                     var totalProduct = unitsNeeded * perUnitAmount;
                     var unitName = (specUnit === 'g') ? '袋' : (specUnit === 'ml') ? '瓶' : (specUnit === '袋') ? '袋' : '瓶';
                     var bottles = volume > 0 ? Math.ceil(totalProduct / volume) : unitsNeeded;
@@ -3203,7 +3254,7 @@ if(window.__onDataReady)window.__onDataReady();
 
                     html += '<div class="calc-result-card"><h4>💧 饮水给药方案</h4>';
                     html += '<p>产品兑水比例：<span class="val2">' + extra.waterMix + '</span></p>';
-                    html += '<p>日需水量 <span class="val">' + totalWaterJin.toFixed(0) + '斤</span> ÷ ' + waterPerUnit + '斤/单位 = <span class="val">' + unitsNeeded + '个单位</span></p>';
+                    html += '<p>日需水量 <span class="val">' + totalWaterJin.toFixed(0) + '斤</span> ÷ ' + waterPerUnit + '斤/单位' + (doseMultiplier > 1 ? ' × ' + doseMultiplier + '倍' : '') + ' = <span class="val">' + unitsNeeded + '个单位</span></p>';
                     if (perUnitAmount > 1) {
                         html += '<p>每日需产品：<span class="val">' + totalProduct + perUnitLabel + '</span></p>';
                     }
@@ -3231,7 +3282,7 @@ if(window.__onDataReady)window.__onDataReady();
                         perUnitAmount2 = 1;
                         perUnitLabel2 = '袋';
                     }
-                    var unitsNeeded2 = Math.ceil(totalFeedJin / feedPerUnit);
+                    var unitsNeeded2 = Math.ceil(totalFeedJin / feedPerUnit * doseMultiplier);
                     var totalProduct2 = unitsNeeded2 * perUnitAmount2;
                     var unitName2 = (specUnit === 'g') ? '袋' : (specUnit === 'ml') ? '瓶' : (specUnit === '袋') ? '袋' : '瓶';
                     var bottles2 = volume > 0 ? Math.ceil(totalProduct2 / volume) : unitsNeeded2;
@@ -3239,7 +3290,7 @@ if(window.__onDataReady)window.__onDataReady();
 
                     html += '<div class="calc-result-card"><h4>🌾 拌料给药方案</h4>';
                     html += '<p>产品兑料比例：<span class="val2">' + extra.feedMix + '</span></p>';
-                    html += '<p>日需料量 <span class="val">' + totalFeedJin.toFixed(1) + '斤</span> ÷ ' + feedPerUnit + '斤/单位 = <span class="val">' + unitsNeeded2 + '个单位</span></p>';
+                    html += '<p>日需料量 <span class="val">' + totalFeedJin.toFixed(1) + '斤</span> ÷ ' + feedPerUnit + '斤/单位' + (doseMultiplier > 1 ? ' × ' + doseMultiplier + '倍' : '') + ' = <span class="val">' + unitsNeeded2 + '个单位</span></p>';
                     if (perUnitAmount2 > 1) {
                         html += '<p>每日需产品：<span class="val">' + totalProduct2 + perUnitLabel2 + '</span></p>';
                     }
@@ -3263,6 +3314,7 @@ if(window.__onDataReady)window.__onDataReady();
                 html += '<p>日饮水量：<span class="val">' + totalWaterJin.toFixed(0) + '斤</span></p>';
                 html += '<p>日采食量：<span class="val2">' + totalFeedJin.toFixed(1) + '斤</span></p>';
                 if (p.dosage && p.dosage !== '—') html += '<p>参考用量：' + p.dosage + '</p>';
+                html += '<p style="color:var(--primary);font-size:12px;margin-top:8px;">💡 提示：可切换到注射模式，输入单只用量后手动计算</p>';
                 html += '</div>';
             }
 
@@ -4255,6 +4307,7 @@ function shareDisease(id) {
         } else {
             html += '<div style="text-align:center;color:var(--text-light);padding:20px;font-size:13px;">未匹配到相关疾病，试试多选几项病变</div>';
         }
+        html += '<div style="margin-top:12px;padding:8px 12px;background:#fff8e1;border-radius:8px;font-size:11px;color:#8d6e00;line-height:1.5;">⚠️ 以上为AI智能鉴别诊断，仅供参考。具体用药方案及疾病确诊，请咨询瑞普生物技术支持。</div>';
         document.getElementById('qaResults').innerHTML = html;
         if (lesions.length >= 1 || diseaseNames.length > 0) { saveCaseRecord(lesions.length > 0 ? lesions.join('、') : diseaseNames.join('、'), diseaseNames); }
     }
@@ -4775,6 +4828,8 @@ var canvasH = headerH + lesionBarH + symptomBarH + photoGridH + diseaseBarH + pa
             html = '<div style="text-align:center;color:var(--text-light);padding:20px;font-size:13px;">未找到相关结果，试试换个关键词，如"拉稀""咳嗽""产蛋下降"</div>';
         }
         
+        // 添加免责声明
+        html += '<div style="margin-top:12px;padding:8px 12px;background:#fff8e1;border-radius:8px;font-size:11px;color:#8d6e00;line-height:1.5;">⚠️ 以上为AI智能鉴别诊断，仅供参考。具体用药方案及疾病确诊，请咨询瑞普生物技术支持。</div>';
         document.getElementById('qaResults').innerHTML = html;
         // 自动保存病例记录
         if (!preset && q.length >= 2) { saveCaseRecord(q, matchedDiseases); }
@@ -5616,7 +5671,40 @@ var canvasH = headerH + lesionBarH + symptomBarH + photoGridH + diseaseBarH + pa
             input.placeholder = '语音识别失败'; setTimeout(function() { input.placeholder = '描述症状，如：3000只鸭15天拉绿粪死淘高'; }, 2000);
         });
     }
-    </script>
+    
+    // 提前定义switchQAMode，确保按钮可用（AI脚本块可能延迟加载）
+    window.switchQAMode = window.switchQAMode || function(mode) {
+        qaMode = mode;
+        document.querySelectorAll('.qa-mode-btn').forEach(function(btn) {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        var steps = document.querySelectorAll('#diagnostic .diagnostic-step');
+        var diagBtn = document.getElementById('diagnoseBtn');
+        var diagResult = document.getElementById('diagnosticResult');
+        var aiArea = document.getElementById('aiChatArea');
+        var aiInput = document.getElementById('aiInputArea');
+        if (mode === 'ai') {
+            steps.forEach(function(s) { s.style.display = 'none'; });
+            if (diagBtn) diagBtn.style.display = 'none';
+            var photoSection = document.getElementById('qaPhotoBar');
+            if (photoSection && photoSection.parentElement) photoSection.parentElement.style.display = 'none';
+            if (diagResult) diagResult.style.display = 'none';
+            if (aiArea) aiArea.style.display = 'flex';
+            if (aiInput) aiInput.style.display = 'block';
+            if (typeof aiChatHistory !== 'undefined' && aiChatHistory.length === 0) {
+                if (typeof appendAIMsg === 'function') appendAIMsg('assistant', '你好！我是水禽疾病AI助手 🦆\n可以问我任何关于鸭鹅养殖、疾病诊断、用药方案的问题。');
+            }
+        } else {
+            steps.forEach(function(s) { s.style.display = ''; });
+            if (diagBtn) diagBtn.style.display = '';
+            if (photoParent) photoParent.style.display = '';
+            if (diagResult) diagResult.style.display = '';
+            if (diagTitle) diagTitle.style.display = '';
+            if (aiArea) aiArea.style.display = 'none';
+            if (aiInput) aiInput.style.display = 'none';
+        }
+    };
+</script>
 
     <!-- AI助手逻辑 -->
     <script>
@@ -5635,6 +5723,9 @@ var canvasH = headerH + lesionBarH + symptomBarH + photoGridH + diseaseBarH + pa
         var steps = document.querySelectorAll('#diagnostic .diagnostic-step');
         var diagBtn = document.getElementById('diagnoseBtn');
         var diagResult = document.getElementById('diagnosticResult');
+        var photoSection = document.getElementById('qaPhotoBar');
+        var photoParent = photoSection ? photoSection.parentElement : null;
+        var diagTitle = document.querySelector('#diagnostic .diagnostic-title');
         // AI元素
         var aiArea = document.getElementById('aiChatArea');
         var aiInput = document.getElementById('aiInputArea');
@@ -5642,9 +5733,9 @@ var canvasH = headerH + lesionBarH + symptomBarH + photoGridH + diseaseBarH + pa
         if (mode === 'ai') {
             steps.forEach(function(s) { s.style.display = 'none'; });
             if (diagBtn) diagBtn.style.display = 'none';
-            var photoSection = document.getElementById('qaPhotoBar');
-            if (photoSection && photoSection.parentElement) photoSection.parentElement.style.display = 'none';
+            if (photoParent) photoParent.style.display = 'none';
             if (diagResult) diagResult.style.display = 'none';
+            if (diagTitle) diagTitle.style.display = 'none';
             if (aiArea) aiArea.style.display = 'flex';
             if (aiInput) aiInput.style.display = 'block';
             if (aiChatHistory.length === 0) {
@@ -5653,9 +5744,9 @@ var canvasH = headerH + lesionBarH + symptomBarH + photoGridH + diseaseBarH + pa
         } else {
             steps.forEach(function(s) { s.style.display = ''; });
             if (diagBtn) diagBtn.style.display = '';
-            var photoSection = document.getElementById('qaPhotoBar');
-            if (photoSection && photoSection.parentElement) photoSection.parentElement.style.display = '';
+            if (photoParent) photoParent.style.display = '';
             if (diagResult) diagResult.style.display = '';
+            if (diagTitle) diagTitle.style.display = '';
             if (aiArea) aiArea.style.display = 'none';
             if (aiInput) aiInput.style.display = 'none';
         }
@@ -5773,14 +5864,14 @@ function appendAIMsg(role, text, imgSrc) {
         var apiKey = localStorage.getItem('__AI_API_KEY__') || 'sk-rahubgdxdbaaaspvokdmupqawtbtzwwngmzakbyezsgasjmz';
         var model = localStorage.getItem('__AI_MODEL__') || 'deepseek-ai/DeepSeek-V4-Flash';
         var useVision = !!imageData;
-        var currentModel = useVision ? 'Qwen/Qwen3-VL-8B-Instruct' : model;
+        var currentModel = useVision ? 'Qwen/Qwen3-VL-32B-Instruct' : model;
         var userMsg;
         if (imageData) {
             userMsg = {
                 role: 'user',
                 content: [
                     { type: 'image_url', image_url: { url: imageData } },
-                    { type: 'text', text: question || '请仔细分析这张水禽(鸭/鹅)病变图片。步骤：1.首先判断是鸭还是鹅（注意：扁嘴、体型、羽毛特征区分）；2.识别可见的病变部位和症状（如肝脏、肠道、心包等器官的异常）；3.结合瑞普水禽方案知识库，判断最可能的疾病（优先考虑：呼肠孤病毒病、鸭传染性浆膜炎、鸭病毒性肝炎、细小病毒病、坦布苏病毒病、雏鹅痛风、禽流感、鸭瘟、大肠杆菌病等水禽常见病）；4.给出针对性的用药建议，优先推荐知识库中的瑞普产品方案。请务必先确认是鸭还是鹅再下诊断，不要把鸭误认为鹅或反之。' }
+                    { type: 'text', text: question || '分析这张水禽病变图片，只描述你能看到的病变：\n1.禽种：鸭还是鹅？\n2.病变：只列出图片中清晰可见的病变器官和特征，看不到的不写\n3.诊断：最可能是什么病？依据是什么？\n4.鉴别：容易混淆的疾病\n5.建议：用药方案\n\n重点鉴别：包心包肝→大肠杆菌病(最常见)；仅心包炎+气囊炎→浆膜炎；肝出血点无包肝→鸭肝/呼肠孤；气管+腺胃出血→禽流感；喉头血痰→鸭瘟\n\n重要：只写能看到的，看不到的器官不要提！简洁回答！' }
                 ]
             };
             appendAIMsg('user', question || '请分析这张水禽病变图片', imageData);
@@ -5808,7 +5899,18 @@ function appendAIMsg(role, text, imgSrc) {
                 if (finalized) return;
                 finalized = true;
                 aiIsGenerating = false;
-                if (fullText) aiChatHistory.push({ role: 'assistant', content: fullText });
+                if (fullText) {
+                    // 添加免责声明
+                    var _disclaimer = '\n\n---\n⚠️ 以上为AI智能鉴别诊断，仅供参考。具体用药方案及疾病确诊，请咨询瑞普生物技术支持。';
+                    fullText = fullText + _disclaimer;
+                    aiChatHistory.push({ role: 'assistant', content: fullText });
+                    // AI问答自动保存病例
+                    var _aiQ = (imageData ? '📷拍照诊断' : question) || 'AI问答';
+                    var _aiDiseases = [];
+                    var _diseaseNames = ['大肠杆菌病','浆膜炎','鸭病毒性肝炎','呼肠孤病毒病','禽流感','坦布苏病毒病','细小病毒病','雏鹅痛风','鸭瘟','坏死性肠炎','沙门菌病'];
+                    _diseaseNames.forEach(function(dn) { if (fullText.indexOf(dn) >= 0) _aiDiseases.push(dn); });
+                    saveCaseRecord(_aiQ, _aiDiseases);
+                }
             }
             xhr.onreadystatechange = function() {
                 if (xhr.readyState >= 3) {
@@ -5854,11 +5956,11 @@ function appendAIMsg(role, text, imgSrc) {
                 appendAIMsg('system', '\u274C \u8BF7\u6C42\u8D85\u65F6\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5');
                 aiIsGenerating = false;
             };
-            xhr.timeout = useVision ? 120000 : 60000;
+            xhr.timeout = useVision ? 90000 : 60000;
             xhr.send(JSON.stringify({
                 model: currentModel,
                 messages: messages,
-                max_tokens: 2048,
+                max_tokens: useVision ? 800 : 2048,
                 temperature: 0.7,
                 stream: true
             }));
@@ -5883,7 +5985,17 @@ function appendAIMsg(role, text, imgSrc) {
                 if (finalized) return;
                 finalized = true;
                 aiIsGenerating = false;
-                if (fullText) aiChatHistory.push({ role: 'assistant', content: fullText });
+                if (fullText) {
+                    var _disclaimer2 = '\n\n---\n⚠️ 以上为AI智能鉴别诊断，仅供参考。具体用药方案及疾病确诊，请咨询瑞普生物技术支持。';
+                    fullText = fullText + _disclaimer2;
+                    aiChatHistory.push({ role: 'assistant', content: fullText });
+                    // AI问答自动保存病例
+                    var _aiQ2 = (imageData ? '📷拍照诊断' : question) || 'AI问答';
+                    var _aiDiseases2 = [];
+                    var _diseaseNames2 = ['大肠杆菌病','浆膜炎','鸭病毒性肝炎','呼肠孤病毒病','禽流感','坦布苏病毒病','细小病毒病','雏鹅痛风','鸭瘟','坏死性肠炎','沙门菌病'];
+                    _diseaseNames2.forEach(function(dn) { if (fullText.indexOf(dn) >= 0) _aiDiseases2.push(dn); });
+                    saveCaseRecord(_aiQ2, _aiDiseases2);
+                }
             }
             function parseChunk(chunk) {
                 streamBuf += chunk;
@@ -5925,11 +6037,11 @@ function appendAIMsg(role, text, imgSrc) {
                             body: JSON.stringify({
                                 model: currentModel,
                                 messages: messages,
-                                max_tokens: 2048,
+                                max_tokens: useVision ? 800 : 2048,
                                 temperature: 0.7,
                                 stream: true
                             }),
-                            timeout: useVision ? 120000 : 60000
+                            timeout: useVision ? 90000 : 60000
                         }, '*');
                     }
                     return;
