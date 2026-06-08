@@ -1302,12 +1302,12 @@ if(window.__onDataReady)window.__onDataReady();
 
     function initAuthSystem() {
         // 清理旧版本缓存
-        if (localStorage.getItem('__AUTH_VER__') !== '9') {
+        if (localStorage.getItem('__AUTH_VER__') !== '10') {
             localStorage.removeItem('__AUTH_OK__');
             localStorage.removeItem('__AUTH_USER__');
             localStorage.removeItem('__AUTH_TOKEN__');
             localStorage.removeItem('__AUTH_REFRESH__');
-            localStorage.setItem('__AUTH_VER__', '9');
+            localStorage.setItem('__AUTH_VER__', '10');
             var keysToRemove = [];
             for (var i = 0; i < localStorage.length; i++) {
                 var key = localStorage.key(i);
@@ -2113,6 +2113,15 @@ if(window.__onDataReady)window.__onDataReady();
     }
     window.__onDataReady = __renderAppData;
     document.addEventListener('DOMContentLoaded', function() {
+        initAuthSystem();
+        // 安全检查：3秒后如果authGate被隐藏但没有合法auth，强制显示
+        setTimeout(function() {
+            var gate = document.getElementById('authGate');
+            if (gate && gate.style.display === 'none' && localStorage.getItem('__AUTH_OK__') !== '1') {
+                gate.style.display = 'flex';
+                console.log('[Auth Safety] 强制显示authGate');
+            }
+        }, 3000);
         initTabs();
         initFilters();
         initSearch();
