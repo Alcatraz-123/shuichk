@@ -1302,12 +1302,12 @@ if(window.__onDataReady)window.__onDataReady();
 
     function initAuthSystem() {
         // 清理旧版本缓存
-        if (localStorage.getItem('__AUTH_VER__') !== '10') {
+        if (localStorage.getItem('__AUTH_VER__') !== '11') {
             localStorage.removeItem('__AUTH_OK__');
             localStorage.removeItem('__AUTH_USER__');
             localStorage.removeItem('__AUTH_TOKEN__');
             localStorage.removeItem('__AUTH_REFRESH__');
-            localStorage.setItem('__AUTH_VER__', '10');
+            localStorage.setItem('__AUTH_VER__', '11');
             var keysToRemove = [];
             for (var i = 0; i < localStorage.length; i++) {
                 var key = localStorage.key(i);
