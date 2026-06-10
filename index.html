@@ -4137,14 +4137,23 @@ function shareDisease(id) {
                 reader.onload = function(e) {
                     var img = new Image();
                     img.onload = function() {
-                        var maxW = 1600;
+                        var maxW = 1024;
                         var w = img.width, h = img.height;
                         if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
                         var canvas = document.createElement('canvas');
                         canvas.width = w; canvas.height = h;
                         var ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, w, h);
-                        var compressed = canvas.toDataURL('image/jpeg', 0.85);
+                        var compressed = canvas.toDataURL('image/jpeg', 0.6);
+                        // 二次压缩：如果base64超过1.5MB则进一步压缩
+                        var b64size = compressed.length * 0.75;
+                        if (b64size > 1500000) {
+                            var scale = Math.sqrt(1500000 / b64size);
+                            var cw = Math.round(w * scale), ch = Math.round(h * scale);
+                            canvas.width = cw; canvas.height = ch;
+                            ctx.drawImage(img, 0, 0, cw, ch);
+                            compressed = canvas.toDataURL('image/jpeg', 0.5);
+                        }
                         qaPhotos.push({ src: compressed, lesions: [] });
                         renderQAPhotos();
                     };
