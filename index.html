@@ -1302,12 +1302,12 @@ if(window.__onDataReady)window.__onDataReady();
 
     function initAuthSystem() {
         // 清理旧版本缓存
-        if (localStorage.getItem('__AUTH_VER__') !== '12') {
+        if (localStorage.getItem('__AUTH_VER__') !== '13') {
             localStorage.removeItem('__AUTH_OK__');
             localStorage.removeItem('__AUTH_USER__');
             localStorage.removeItem('__AUTH_TOKEN__');
             localStorage.removeItem('__AUTH_REFRESH__');
-            localStorage.setItem('__AUTH_VER__', '12');
+            localStorage.setItem('__AUTH_VER__', '13');
             var keysToRemove = [];
             for (var i = 0; i < localStorage.length; i++) {
                 var key = localStorage.key(i);
@@ -1401,6 +1401,16 @@ if(window.__onDataReady)window.__onDataReady();
                     headers: sbHeaders(_authToken)
                 });
                 if (profiles && profiles[0] && profiles[0].card_activated) {
+                    localStorage.setItem('__AUTH_OK__', '1');
+                    document.getElementById('authGate').style.display = 'none';
+                    return;
+                } else if (profiles && profiles.length === 0) {
+                    // profile不存在，自动创建
+                    await sbFetch('/rest/v1/profiles', {
+                        method: 'POST',
+                        headers: sbHeaders(_authToken),
+                        body: JSON.stringify({ id: user.id, card_activated: true, activated_at: new Date().toISOString() })
+                    });
                     localStorage.setItem('__AUTH_OK__', '1');
                     document.getElementById('authGate').style.display = 'none';
                     return;
@@ -1541,12 +1551,19 @@ if(window.__onDataReady)window.__onDataReady();
                 headers: sbHeaders(_authToken),
                 body: JSON.stringify({ status: 'used', used_by: _authUser.id, used_at: new Date().toISOString() })
             });
-            // 更新profile
-            await sbFetch('/rest/v1/profiles?id=eq.' + _authUser.id, {
+            // 更新profile（UPSERT：先PATCH，不存在则POST）
+            var patchRes = await sbFetch('/rest/v1/profiles?id=eq.' + _authUser.id, {
                 method: 'PATCH',
                 headers: sbHeaders(_authToken),
                 body: JSON.stringify({ card_activated: true, card_key_id: card.id, activated_at: new Date().toISOString() })
             });
+            if (!patchRes || patchRes.length === 0) {
+                await sbFetch('/rest/v1/profiles', {
+                    method: 'POST',
+                    headers: sbHeaders(_authToken),
+                    body: JSON.stringify({ id: _authUser.id, card_activated: true, card_key_id: card.id, activated_at: new Date().toISOString() })
+                });
+            }
             setAuthMsg('激活成功！', 'success');
             setTimeout(function() {
                 localStorage.setItem('__AUTH_OK__', '1');
