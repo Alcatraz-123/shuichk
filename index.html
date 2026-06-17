@@ -207,19 +207,34 @@ function loadChinaMap() {
         .catch(function(){ document.getElementById('survMap').innerHTML = '<div style="text-align:center;color:#999;padding:40px;">地图数据加载失败</div>'; });
 }
 
+function _normProvName(name) {
+    return name.replace(/省|市|自治区|壮族|回族|维吾尔|特别行政区/g, '');
+}
+
 function renderChinaMap() {
     echarts.registerMap('china', survChinaGeo);
     var mapData = survData.mapData;
     var dataArr = [];
+    // Build name mapping: short name (mapData) -> GeoJSON name (feature name)
+    var geoToShort = {};
+    if (survChinaGeo && survChinaGeo.features) {
+        survChinaGeo.features.forEach(function(f) {
+            var geoName = f.properties.name;
+            var shortName = _normProvName(geoName);
+            geoToShort[shortName] = geoName;
+        });
+    }
     for (var prov in mapData) {
-        dataArr.push({name: prov, value: mapData[prov].totalCases, riskLevel: mapData[prov].riskLevel});
+        var geoName = geoToShort[prov] || prov;
+        dataArr.push({name: geoName, value: mapData[prov].totalCases, riskLevel: mapData[prov].riskLevel});
     }
     var option = {
         tooltip: {
             trigger: 'item',
             formatter: function(p) {
-                var d = mapData[p.name];
-                if (!d) return p.name + '<br/>暂无数据';
+                var sn = _normProvName(p.name);
+                var d = mapData[sn];
+                if (!d) return sn + '<br/>暂无数据';
                 var s = '<b>' + p.name + '</b><br/>检测场次：' + d.totalCases + '<br/>风险等级：' + d.riskLevel;
                 if (d.cities) {
                     s += '<br/><br/>主要疫病：';
@@ -249,9 +264,10 @@ function renderChinaMap() {
     survChart.setOption(option, true);
     survChart.off('click');
     survChart.on('click', function(params) {
-        if (params.name && mapData[params.name]) {
-            survCurrentProvince = params.name;
-            loadProvinceMap(params.name);
+        var clickShort = _normProvName(params.name);
+        if (params.name && mapData[clickShort]) {
+            survCurrentProvince = clickShort;
+            loadProvinceMap(clickShort);
         }
     });
     survMapLevel = 'china';
@@ -2266,7 +2282,7 @@ function survMapGoBack() {
                 <!-- 中国地图 -->
                 <div style="margin-bottom:14px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                        <div style="font-size:14px;font-weight:700;color:var(--primary);">🗺️ 疫病分布地图 <span style="font-size:10px;color:#999;">V15-全内嵌</span></div>
+                        <div style="font-size:14px;font-weight:700;color:var(--primary);">🗺️ 疫病分布地图 <span style="font-size:10px;color:#ff0;">V16-兼容</span></div>
                         <button id="survMapBack" onclick="survMapGoBack()" style="display:none;border:none;background:var(--primary);color:#fff;padding:3px 10px;border-radius:10px;font-size:11px;cursor:pointer;">← 返回全国</button>
                     </div>
                     <div id="survMap" style="width:100%;height:320px;background:white;border-radius:12px;"></div>
