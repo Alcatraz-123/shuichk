@@ -207,18 +207,35 @@ function loadChinaMap() {
         .catch(function(){ document.getElementById('survMap').innerHTML = '<div style="text-align:center;color:#999;padding:40px;">地图数据加载失败</div>'; });
 }
 
+var _provNameMap = {"北京市":"北京","天津市":"天津","河北省":"河北","山西省":"山西","内蒙古自治区":"内蒙古","辽宁省":"辽宁","吉林省":"吉林","黑龙江省":"黑龙江","上海市":"上海","江苏省":"江苏","浙江省":"浙江","安徽省":"安徽","福建省":"福建","江西省":"江西","山东省":"山东","河南省":"河南","湖北省":"湖北","湖南省":"湖南","广东省":"广东","广西壮族自治区":"广西","海南省":"海南","重庆市":"重庆","四川省":"四川","贵州省":"贵州","云南省":"云南","西藏自治区":"西藏","陕西省":"陕西","甘肃省":"甘肃","青海省":"青海","宁夏回族自治区":"宁夏","新疆维吾尔自治区":"新疆","台湾省":"台湾","香港特别行政区":"香港","澳门特别行政区":"澳门"};
+
+function _getShortName(fullName) {
+    return _provNameMap[fullName] || fullName.replace(/省|市|自治区|壮族|回族|维吾尔|特别行政区/g, '');
+}
+
 function renderChinaMap() {
     echarts.registerMap('china', survChinaGeo);
     var mapData = survData.mapData;
     var dataArr = [];
+    // Build name mapping: short name -> GeoJSON full name
+    var shortToFull = {};
+    if (survChinaGeo && survChinaGeo.features) {
+        survChinaGeo.features.forEach(function(f) {
+            var full = f.properties.name;
+            var short = _getShortName(full);
+            shortToFull[short] = full;
+        });
+    }
     for (var prov in mapData) {
-        dataArr.push({name: prov, value: mapData[prov].totalCases, riskLevel: mapData[prov].riskLevel});
+        var geoName = shortToFull[prov] || prov;
+        dataArr.push({name: geoName, value: mapData[prov].totalCases, riskLevel: mapData[prov].riskLevel});
     }
     var option = {
         tooltip: {
             trigger: 'item',
             formatter: function(p) {
-                var d = mapData[p.name];
+                var shortName = _getShortName(p.name);
+                var d = mapData[shortName];
                 if (!d) return p.name + '<br/>暂无数据';
                 var s = '<b>' + p.name + '</b><br/>检测场次：' + d.totalCases + '<br/>风险等级：' + d.riskLevel;
                 if (d.cities) {
@@ -249,9 +266,10 @@ function renderChinaMap() {
     survChart.setOption(option, true);
     survChart.off('click');
     survChart.on('click', function(params) {
-        if (params.name && mapData[params.name]) {
-            survCurrentProvince = params.name;
-            loadProvinceMap(params.name);
+        var shortName2 = _getShortName(params.name);
+        if (params.name && mapData[shortName2]) {
+            survCurrentProvince = shortName2;
+            loadProvinceMap(shortName2);
         }
     });
     survMapLevel = 'china';
