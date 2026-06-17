@@ -70,32 +70,33 @@ if(window.__onDataReady)window.__onDataReady();
 .company-tag-yibio { background:#fff3e0; color:#e65100; }
 .company-tag-sinder { background:#ffebee; color:#c62828; }
 </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script>
 // ===== 流调数据模块 =====
 var survData = null;
 var survType = 'viral';
+var survChart = null;
+var survMapLevel = 'china'; // china | province
+var survCurrentProvince = '';
+var survChinaGeo = null;
+var survProvinceGeo = {};
 
 function initSurveillance() {
     if (survData) { renderSurveillance(); return; }
     fetch('data/surveillanceData.json')
-        .then(function(r){ return r.json(); })
-        .then(function(d){
-            survData = d;
-            renderSurveillance();
-        })
-        .catch(function(e){
-            document.getElementById('survAlerts').innerHTML = '<div style="text-align:center;color:#999;padding:40px;">数据加载失败，请检查网络</div>';
-        });
+        .then(function(r) { return r.json(); })
+        .then(function(d) { survData = d; renderSurveillance(); })
+        .catch(function(e) { console.error('流调数据加载失败:', e); });
 }
 
 function renderSurveillance() {
     if (!survData) return;
-    // 更新日期
     document.getElementById('survUpdateDate').textContent = '数据更新：' + survData.updateDate + '  版本：' + survData.version;
     document.getElementById('survDataSource').textContent = survData.dataSource;
 
-    // 预警卡片
     var all = survData.viral.concat(survData.bacterial);
+    // 预警卡片
     var alerts = all.filter(function(p){ return p.riskLevel === '高' || (p.riskLevel === '中' && p.trend === '↑'); });
     alerts.sort(function(a,b){ return b.latestRate - a.latestRate; });
     var alertHtml = '';
@@ -104,12 +105,12 @@ function renderSurveillance() {
         var border = p.riskLevel === '高' ? '#e74c3c' : '#f39c12';
         var icon = p.riskLevel === '高' ? '🔴' : '🟡';
         var label = p.riskLevel === '高' ? '高风险' : '风险上升';
-        alertHtml += '<div style="background:'+bg+';border-left:4px solid '+border+';border-radius:0 8px 8px 0;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">'
-            + '<span style="font-size:18px;">'+icon+'</span>'
-            + '<div style="flex:1;"><div style="font-weight:700;font-size:14px;">'+p.name+' <span style="color:'+border+';font-size:12px;">'+label+'</span></div>'
-            + '<div style="font-size:12px;color:var(--text-light);">检出率 '+p.latestRate+'% '+p.trend+'</div></div></div>';
+        alertHtml += '<div style="background:'+bg+';border-left:4px solid '+border+';border-radius:0 8px 8px 0;padding:10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;">'
+            + '<span style="font-size:16px;">'+icon+'</span>'
+            + '<div style="flex:1;"><div style="font-weight:700;font-size:13px;">'+p.name+' <span style="color:'+border+';font-size:11px;">'+label+'</span></div>'
+            + '<div style="font-size:11px;color:var(--text-light);">检出率 '+p.latestRate+'% '+p.trend+'</div></div></div>';
     });
-    if (!alertHtml) alertHtml = '<div style="text-align:center;color:#27ae60;padding:20px;">✅ 本周无高风险预警</div>';
+    if (!alertHtml) alertHtml = '<div style="text-align:center;color:#27ae60;padding:16px;">✅ 本周无高风险预警</div>';
     document.getElementById('survAlerts').innerHTML = alertHtml;
 
     // 检出率排行
@@ -118,79 +119,200 @@ function renderSurveillance() {
     all.forEach(function(p, i){
         var pct = p.latestRate;
         var barColor = pct >= 30 ? '#e74c3c' : (pct >= 15 ? '#f39c12' : '#27ae60');
-        var rankBg = i < 3 ? '#fff5f5' : 'white';
-        rankHtml += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;background:'+rankBg+';border-radius:8px;margin-bottom:4px;">'
-            + '<span style="width:24px;text-align:center;font-weight:700;color:'+(i<3?'#e74c3c':'var(--text-light)')+';font-size:13px;">'+(i+1)+'</span>'
-            + '<div style="flex:1;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">'+p.name+'</span><span style="font-size:13px;font-weight:700;color:'+barColor+';">'+p.latestRate+'% '+p.trend+'</span></div>'
-            + '<div style="height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:'+barColor+';border-radius:3px;"></div></div></div></div>';
+        rankHtml += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f5f5f5;">'
+            + '<span style="width:18px;text-align:center;font-weight:700;color:'+(i<3?'#e74c3c':'var(--text-light)')+';font-size:12px;">'+(i+1)+'</span>'
+            + '<div style="flex:1;"><div style="display:flex;justify-content:space-between;margin-bottom:2px;"><span style="font-size:12px;font-weight:600;">'+p.name+'</span><span style="font-size:12px;font-weight:700;color:'+barColor+';">'+p.latestRate+'% '+p.trend+'</span></div>'
+            + '<div style="height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden;"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:'+barColor+';border-radius:2px;"></div></div></div></div>';
     });
     document.getElementById('survRanking').innerHTML = rankHtml;
 
-    renderSurvTrend();
-    renderSurvHeatmap();
+    renderSurvCards();
+    initSurvMap();
 }
 
 function switchSurvType(type) {
     survType = type;
     document.getElementById('survBtnViral').className = 'filter-btn' + (type==='viral' ? ' active' : '');
     document.getElementById('survBtnBacterial').className = 'filter-btn' + (type==='bacterial' ? ' active' : '');
-    renderSurvTrend();
-    renderSurvHeatmap();
+    renderSurvCards();
 }
 
-function renderSurvTrend() {
+function renderSurvCards() {
     var pathogens = survType === 'viral' ? survData.viral : survData.bacterial;
     var weeks = survData.weeks;
-    var colors = ['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6'];
-    var html = '<div style="min-width:600px;">';
-    // 表头
-    html += '<div style="display:flex;border-bottom:2px solid var(--primary);padding:6px 0;font-size:11px;font-weight:700;">';
-    html += '<div style="width:70px;">病原</div>';
-    weeks.forEach(function(w){ html += '<div style="flex:1;text-align:center;">'+w.replace('W','')+'</div>'; });
-    html += '</div>';
-    // 数据行
+    var colors = ['#3498db','#e74c3c','#2ecc71','#f39c12'];
+    var html = '';
     pathogens.forEach(function(p, pi){
-        var color = colors[pi % colors.length];
-        html += '<div style="display:flex;padding:5px 0;border-bottom:1px solid #f5f5f5;font-size:10px;align-items:center;">';
-        html += '<div style="width:70px;font-weight:600;color:'+color+';font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+p.name+'</div>';
-        weeks.forEach(function(w){
-            var val = p.weeklyData[w] || 0;
-            var bg = val >= 30 ? '#e74c3c' : (val >= 15 ? '#f39c12' : (val > 0 ? '#3498db' : '#f0f0f0'));
-            var txtColor = val >= 15 ? '#fff' : '#333';
-            html += '<div style="flex:1;text-align:center;background:'+bg+';color:'+txtColor+';margin:1px;border-radius:3px;padding:3px 0;font-weight:600;">'+(val>0?val:'-')+'</div>';
+        var pct = p.latestRate;
+        var riskColor = p.riskLevel === '高' ? '#e74c3c' : (p.riskLevel === '中' ? '#f39c12' : '#27ae60');
+        var riskBg = p.riskLevel === '高' ? '#fff5f5' : (p.riskLevel === '中' ? '#fff9e6' : '#f0fff0');
+        var lineColor = colors[pi % colors.length];
+        html += '<div style="background:white;border-radius:12px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+        html += '<div style="font-size:14px;font-weight:700;">'+p.name+'</div>';
+        html += '<div style="display:flex;align-items:center;gap:6px;">';
+        html += '<span style="background:'+riskBg+';color:'+riskColor+';font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;">'+p.riskLevel+'风险</span>';
+        html += '<span style="font-size:16px;font-weight:700;color:'+riskColor+';">'+p.latestRate+'%</span>';
+        html += '<span style="font-size:13px;color:'+riskColor+';">'+p.trend+'</span>';
+        html += '</div></div>';
+        // SVG趋势图
+        var vals = weeks.map(function(w){ return p.weeklyData[w] || 0; });
+        var maxVal = Math.max.apply(null, vals);
+        if (maxVal < 10) maxVal = 10;
+        var svgW = 300, svgH = 50, padX = 5, padY = 5;
+        var stepX = (svgW - 2*padX) / (weeks.length - 1);
+        var points = '';
+        vals.forEach(function(v, vi){
+            var x = padX + vi * stepX;
+            var y = svgH - padY - (v / maxVal) * (svgH - 2*padY);
+            points += x+','+y+' ';
         });
-        html += '</div>';
+        html += '<svg viewBox="0 0 '+svgW+' '+svgH+'" style="width:100%;height:50px;">';
+        html += '<line x1="'+padX+'" y1="'+(svgH-padY)+'" x2="'+(svgW-padX)+'" y2="'+(svgH-padY)+'" stroke="#e0e0e0" stroke-width="0.5"/>';
+        var areaPoints = padX+','+(svgH-padY)+' '+points+((svgW-padX)+','+(svgH-padY));
+        html += '<polygon points="'+areaPoints+'" fill="'+lineColor+'" opacity="0.1"/>';
+        html += '<polyline points="'+points+'" fill="none" stroke="'+lineColor+'" stroke-width="1.5" stroke-linejoin="round"/>';
+        var lastX = padX + (vals.length-1) * stepX;
+        var lastY = svgH - padY - (vals[vals.length-1] / maxVal) * (svgH - 2*padY);
+        html += '<circle cx="'+lastX+'" cy="'+lastY+'" r="3" fill="'+lineColor+'"/>';
+        html += '</svg>';
+        // 近4周数据
+        html += '<div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:var(--text-light);">';
+        var last4 = weeks.slice(-4);
+        last4.forEach(function(w){
+            var v = p.weeklyData[w] || 0;
+            html += '<span>'+w.replace('W','')+'周: <b style="color:'+(v>=30?'#e74c3c':(v>=15?'#f39c12':'#333'))+'">'+v+'%</b></span>';
+        });
+        html += '</div></div>';
     });
-    html += '</div>';
-    document.getElementById('survTrend').innerHTML = html;
+    document.getElementById('survCards').innerHTML = html;
 }
 
-function renderSurvHeatmap() {
-    var pathogens = survType === 'viral' ? survData.viral : survData.bacterial;
-    var weeks = survData.weeks;
-    var html = '<table style="width:100%;border-collapse:collapse;font-size:9px;table-layout:fixed;">';
-    html += '<tr><td style="width:60px;"></td>';
-    weeks.forEach(function(w){ html += '<td style="text-align:center;font-weight:700;padding:4px 1px;">'+w.replace('W','')+'</td>'; });
-    html += '</tr>';
-    pathogens.forEach(function(p){
-        html += '<tr><td style="font-weight:600;padding:4px 2px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+p.name+'</td>';
-        weeks.forEach(function(w){
-            var val = p.weeklyData[w] || 0;
-            var bg = val===0?'#F5F5F5':(val<5?'#FFF9E6':(val<10?'#FFF3CD':(val<15?'#FFE082':(val<20?'#FFD93D':(val<25?'#FFB74D':(val<30?'#FF8C00':(val<40?'#FF5722':(val<50?'#E74C3C':'#8B0000'))))))));
-            var txtColor = val >= 25 ? '#fff' : '#333';
-            html += '<td style="text-align:center;background:'+bg+';color:'+txtColor+';padding:4px 1px;font-weight:600;border-radius:2px;">'+(val>0?val:'')+'</td>';
-        });
-        html += '</tr>';
-    });
-    html += '</table>';
-    html += '<div style="display:flex;align-items:center;gap:4px;margin-top:8px;font-size:9px;color:var(--text-light);"><span>低</span>';
-    ['#FFF9E6','#FFF3CD','#FFE082','#FFD93D','#FFB74D','#FF8C00','#FF5722','#E74C3C','#8B0000'].forEach(function(c){
-        html += '<div style="width:16px;height:10px;background:'+c+';border-radius:2px;"></div>';
-    });
-    html += '<span>高</span></div>';
-    document.getElementById('survHeatmap').innerHTML = html;
+// ===== 地图模块 =====
+var survProvinceCodeMap = {"山东":"370000","广东":"440000","湖北":"420000","河南":"410000","江苏":"320000","广西":"450000","湖南":"430000","四川":"510000","安徽":"340000"};
+
+function initSurvMap() {
+    if (!window.echarts) { document.getElementById('survMap').innerHTML = '<div style="text-align:center;color:#999;padding:40px;">地图组件加载中...</div>'; return; }
+    survChart = echarts.init(document.getElementById('survMap'), null, {renderer: 'canvas'});
+    loadChinaMap();
 }
-</script>
+
+function loadChinaMap() {
+    if (survChinaGeo) { renderChinaMap(); return; }
+    fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+        .then(function(r){ return r.json(); })
+        .then(function(geo){ survChinaGeo = geo; renderChinaMap(); })
+        .catch(function(){ document.getElementById('survMap').innerHTML = '<div style="text-align:center;color:#999;padding:40px;">地图数据加载失败</div>'; });
+}
+
+function renderChinaMap() {
+    echarts.registerMap('china', survChinaGeo);
+    var mapData = survData.mapData;
+    var dataArr = [];
+    for (var prov in mapData) {
+        dataArr.push({name: prov, value: mapData[prov].totalCases, riskLevel: mapData[prov].riskLevel});
+    }
+    var option = {
+        tooltip: {
+            trigger: 'item',
+            formatter: function(p) {
+                var d = mapData[p.name];
+                if (!d) return p.name + '<br/>暂无数据';
+                var s = '<b>' + p.name + '</b><br/>检测场次：' + d.totalCases + '<br/>风险等级：' + d.riskLevel;
+                if (d.cities) {
+                    s += '<br/><br/>主要疫病：';
+                    var allDis = {};
+                    for (var city in d.cities) {
+                        for (var dis in d.cities[city]) { allDis[dis] = (allDis[dis]||0) + d.cities[city][dis]; }
+                    }
+                    var sorted = Object.keys(allDis).sort(function(a,b){return allDis[b]-allDis[a];});
+                    sorted.slice(0,3).forEach(function(k){ s += '<br/>'+k+': '+allDis[k]+'%'; });
+                }
+                return s;
+            }
+        },
+        visualMap: {
+            min: 0, max: 600, left: 10, bottom: 10,
+            text: ['高','低'], textStyle: {fontSize: 10},
+            inRange: {color: ['#e0f3e0','#a8ddb5','#7bccc4','#4eb3d3','#2b8cbe','#08589e']},
+            calculable: true
+        },
+        series: [{
+            type: 'map', map: 'china', roam: true,
+            label: {show: false},
+            emphasis: {label: {show: true, fontSize: 11}, itemStyle: {areaColor: '#ffd93d'}},
+            data: dataArr
+        }]
+    };
+    survChart.setOption(option, true);
+    survChart.off('click');
+    survChart.on('click', function(params) {
+        if (params.name && mapData[params.name]) {
+            survCurrentProvince = params.name;
+            loadProvinceMap(params.name);
+        }
+    });
+    survMapLevel = 'china';
+    document.getElementById('survMapBack').style.display = 'none';
+    document.getElementById('survMapInfo').textContent = '点击省份查看市级详情';
+}
+
+function loadProvinceMap(provName) {
+    var code = survProvinceCodeMap[provName];
+    if (!code) { document.getElementById('survMapInfo').textContent = provName + ' 暂无详细地图数据'; return; }
+    if (survProvinceGeo[provName]) { renderProvinceMap(provName); return; }
+    document.getElementById('survMapInfo').textContent = '加载' + provName + '地图...';
+    fetch('https://geo.datav.aliyun.com/areas_v3/bound/' + code + '_full.json')
+        .then(function(r){ return r.json(); })
+        .then(function(geo){ survProvinceGeo[provName] = geo; renderProvinceMap(provName); })
+        .catch(function(){ document.getElementById('survMapInfo').textContent = '地图数据加载失败'; });
+}
+
+function renderProvinceMap(provName) {
+    echarts.registerMap('province_' + provName, survProvinceGeo[provName]);
+    var provData = survData.mapData[provName];
+    var cities = provData.cities;
+    var dataArr = [];
+    // 市级检出数据 - 取该市最高检出率的病原作为value
+    for (var city in cities) {
+        var maxRate = 0;
+        for (var dis in cities[city]) { if (cities[city][dis] > maxRate) maxRate = cities[city][dis]; }
+        dataArr.push({name: city + '市', value: maxRate, diseases: cities[city]});
+    }
+    var option = {
+        tooltip: {
+            trigger: 'item',
+            formatter: function(p) {
+                var d = p.data;
+                if (!d || !d.diseases) return p.name + '<br/>暂无数据';
+                var s = '<b>' + p.name.replace('市','') + '</b>';
+                var sorted = Object.keys(d.diseases).sort(function(a,b){return d.diseases[b]-d.diseases[a];});
+                sorted.forEach(function(k){ s += '<br/>' + k + '：' + d.diseases[k] + '%'; });
+                return s;
+            }
+        },
+        visualMap: {
+            min: 0, max: 60, left: 10, bottom: 10,
+            text: ['高','低'], textStyle: {fontSize: 10},
+            inRange: {color: ['#e0f3e0','#a8ddb5','#7bccc4','#4eb3d3','#2b8cbe','#08589e']},
+            calculable: true
+        },
+        series: [{
+            type: 'map', map: 'province_' + provName, roam: true,
+            label: {show: true, fontSize: 10},
+            emphasis: {label: {show: true, fontSize: 12}, itemStyle: {areaColor: '#ffd93d'}},
+            data: dataArr
+        }]
+    };
+    survChart.setOption(option, true);
+    survMapLevel = 'province';
+    document.getElementById('survMapBack').style.display = 'inline-block';
+    document.getElementById('survMapInfo').textContent = provName + ' - 点击市查看疫病详情';
+}
+
+function survMapGoBack() {
+    if (survMapLevel === 'province' && survChinaGeo) { renderChinaMap(); }
+}</script>
 
 
     <style>
@@ -2125,37 +2247,36 @@ function renderSurvHeatmap() {
 
         <!-- 流调数据 -->
         <div id="surveillance" class="tab-content">
-            <div style="padding:16px;">
-                <div style="text-align:center;margin-bottom:16px;">
-                    <div style="font-size:13px;color:var(--text-light);" id="survUpdateDate">数据加载中...</div>
+            <div style="padding:12px 16px;">
+                <div style="text-align:center;margin-bottom:10px;">
+                    <div style="font-size:12px;color:var(--text-light);" id="survUpdateDate">数据加载中...</div>
                 </div>
                 <!-- 预警卡片 -->
-                <div style="margin-bottom:20px;">
-                    <div style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--primary);">🔴 本周疫病预警</div>
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:var(--primary);">🔴 本周疫病预警</div>
                     <div id="survAlerts"></div>
                 </div>
-                <!-- 病原检出率排行 -->
-                <div style="margin-bottom:20px;">
-                    <div style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--primary);">📊 最新检出率排行</div>
+                <!-- 检出率排行 -->
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:var(--primary);">📊 检出率排行</div>
                     <div id="survRanking"></div>
                 </div>
-                <!-- 历史趋势 -->
-                <div style="margin-bottom:20px;">
-                    <div style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--primary);">📈 历史趋势（1-22周）</div>
-                    <div style="margin-bottom:8px;">
-                        <button class="filter-btn active" onclick="switchSurvType('viral')" id="survBtnViral">病毒性</button>
-                        <button class="filter-btn" onclick="switchSurvType('bacterial')" id="survBtnBacterial">细菌性</button>
+                <!-- 中国地图 -->
+                <div style="margin-bottom:14px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <div style="font-size:14px;font-weight:700;color:var(--primary);">🗺️ 疫病分布地图</div>
+                        <button id="survMapBack" onclick="survMapGoBack()" style="display:none;border:none;background:var(--primary);color:#fff;padding:3px 10px;border-radius:10px;font-size:11px;cursor:pointer;">← 返回全国</button>
                     </div>
-                    <div id="survTrend" style="background:white;border-radius:12px;padding:12px;overflow-x:auto;">
-                    </div>
+                    <div id="survMap" style="width:100%;height:320px;background:white;border-radius:12px;"></div>
+                    <div id="survMapInfo" style="font-size:11px;color:var(--text-light);text-align:center;margin-top:4px;">点击省份查看市级详情</div>
                 </div>
-                <!-- 热力图 -->
-                <div style="margin-bottom:20px;">
-                    <div style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--primary);">🗺️ 周检出率热力图</div>
-                    <div id="survHeatmap" style="background:white;border-radius:12px;padding:12px;overflow-x:auto;">
-                    </div>
+                <!-- 病原趋势卡片 -->
+                <div style="margin-bottom:8px;display:flex;gap:8px;">
+                    <button class="filter-btn active" onclick="switchSurvType('viral')" id="survBtnViral">病毒性</button>
+                    <button class="filter-btn" onclick="switchSurvType('bacterial')" id="survBtnBacterial">细菌性</button>
                 </div>
-                <div style="text-align:center;font-size:11px;color:var(--text-light);padding:12px 0;" id="survDataSource"></div>
+                <div id="survCards"></div>
+                <div style="text-align:center;font-size:10px;color:var(--text-light);padding:16px 0;" id="survDataSource"></div>
             </div>
         </div>
         </main>
@@ -2264,10 +2385,15 @@ function renderSurvHeatmap() {
         if (index < 0 || index >= tabIds.length) return;
         currentTabIndex = index;
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(function(el) {
+            el.classList.remove('active');
+            el.style.display = 'none';
+        });
         var targetTab = document.querySelector('[data-tab="' + tabIds[index] + '"]');
         targetTab.classList.add('active');
-        document.getElementById(tabIds[index]).classList.add('active');
+        var activeContent = document.getElementById(tabIds[index]);
+        activeContent.classList.add('active');
+        activeContent.style.display = '';
         // 切换到病例记录tab时渲染列表
         if (tabIds[index] === 'caserecord' && typeof renderCaseListForTab === 'function') {
             renderCaseListForTab();
