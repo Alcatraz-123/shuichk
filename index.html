@@ -1664,7 +1664,7 @@ function renderMinorPathogens() {
 <script>
 // Force refresh on stale cache - check every time app opens
 (function(){
-    var VER = '33';
+    var VER = '34';
     var stored = localStorage.getItem('_sw_ver');
     if (stored && stored !== VER) {
         // 清除所有缓存数据，强制刷新
@@ -1770,7 +1770,7 @@ function renderMinorPathogens() {
 
     function onAuthReady(ok) {
         if (!ok) {
-            if (localStorage.getItem('__AUTH_OK__') === '1') {
+            if (localStorage.getItem('__AUTH_OK__') === '1' && localStorage.getItem('__AUTH_VER__')) {
                 document.getElementById('authGate').style.display = 'none';
                 
             } else {
@@ -1808,7 +1808,7 @@ function renderMinorPathogens() {
                 }
             }
         } catch(e) {
-            if (localStorage.getItem('__AUTH_OK__') === '1') {
+            if (localStorage.getItem('__AUTH_OK__') === '1' && localStorage.getItem('__AUTH_VER__')) {
                 document.getElementById('authGate').style.display = 'none';
                 return;
             }
