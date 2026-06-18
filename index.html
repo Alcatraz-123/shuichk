@@ -1749,10 +1749,7 @@ function renderMinorPathogens() {
         try {
             if (window.supabase && window.supabase.createClient) {
                 authDb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                // V3升级：页面加载时强制登出旧会话（仅在无__AUTH_OK__时）
-                if (localStorage.getItem('__AUTH_VER__') === '3' && !localStorage.getItem('__AUTH_OK__')) {
-                    try { authDb.auth.signOut(); } catch(e) {}
-                }
+
                 // 延迟checkAuth，确保authGate先显示
                 setTimeout(function() { checkAuth(); }, 200);
             } else {
@@ -1777,8 +1774,7 @@ function renderMinorPathogens() {
 
     async function checkAuth() {
         try {
-            // V3升级：强制登出逻辑已移到initAuthSystem，不在checkAuth中重复执行
-            // 避免doLogin成功后checkAuth立即登出刚登录的会话
+
             var result = await authDb.auth.getSession();
             var session = result.data && result.data.session;
             if (session) {
@@ -1863,29 +1859,10 @@ function renderMinorPathogens() {
                 try { await confirmUserEmail(result.data.user.id); } catch(ce) {}
             }
             setAuthMsg('登录成功！', 'success');
-            // 登录成功后直接尝试验证激活状态
-            try {
-                var pCheck = await authDb.from('profiles').select('card_activated').eq('id', result.data.user.id).single();
-                if (pCheck.data && pCheck.data.card_activated) {
-                    localStorage.setItem('__AUTH_OK__', '1');
-                    localStorage.setItem('__AUTH_USER__', result.data.user.email || '');
-                    document.getElementById('authGate').style.display = 'none';
-                    return;
-                }
-            } catch(pe) {
-                // RLS可能阻止，尝试不带single
-                try {
-                    var pCheck2 = await authDb.from('profiles').select('card_activated').eq('id', result.data.user.id);
-                    if (pCheck2.data && pCheck2.data.length > 0 && pCheck2.data[0].card_activated) {
-                        localStorage.setItem('__AUTH_OK__', '1');
-                        localStorage.setItem('__AUTH_USER__', result.data.user.email || '');
-                        document.getElementById('authGate').style.display = 'none';
-                        return;
-                    }
-                } catch(pe2) {}
-            }
-            // profile查询失败，走checkAuth兜底
-            await checkAuth();
+            // 登录即可使用，无需卡密
+            localStorage.setItem('__AUTH_OK__', '1');
+            localStorage.setItem('__AUTH_USER__', result.data.user.email || '');
+            document.getElementById('authGate').style.display = 'none';
         } catch(e) {
             var msg = (e && e.message) ? e.message : '登录失败';
             if (msg.indexOf('Invalid login') >= 0) msg = '邮箱或密码错误';
