@@ -1664,7 +1664,7 @@ function renderMinorPathogens() {
 <script>
 // Force refresh on stale cache - check every time app opens
 (function(){
-    var VER = '32';
+    var VER = '33';
     var stored = localStorage.getItem('_sw_ver');
     if (stored && stored !== VER) {
         // 清除所有缓存数据，强制刷新
@@ -1686,7 +1686,7 @@ function renderMinorPathogens() {
 </script>
 </head>
 <body>
-    <div id="authGate" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#0e3a54 0%,#1a5276 40%,#17a589 100%);display:none;align-items:center;justify-content:center;"><script>if(localStorage.getItem('__AUTH_OK__')==='1'){var g=document.getElementById('authGate');g.style.display='none!important';g.setAttribute('data-skip','1');}</script>
+    <div id="authGate" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#0e3a54 0%,#1a5276 40%,#17a589 100%);display:none;align-items:center;justify-content:center;"><script>if(localStorage.getItem('__AUTH_OK__')==='1'&&localStorage.getItem('__AUTH_VER__')){var g=document.getElementById('authGate');g.style.display='none!important';g.setAttribute('data-skip','1');}</script>
         <div style="background:#fff;border-radius:20px;padding:32px 24px 24px;width:88%;max-width:360px;box-shadow:0 24px 80px rgba(0,0,0,0.25);">
             <div style="text-align:center;margin-bottom:20px;">
                 <div style="font-size:42px;margin-bottom:4px;">🦆</div>
@@ -1748,9 +1748,9 @@ function renderMinorPathogens() {
     function initAuthSystem() {
         var gate = document.getElementById('authGate');
         // 已登录用户：完全跳过auth流程，永远不显示gate
-        if (gate.getAttribute('data-skip') === '1' || localStorage.getItem('__AUTH_OK__') === '1') {
+        if (gate.getAttribute('data-skip') === '1' && localStorage.getItem('__AUTH_OK__') === '1' && localStorage.getItem('__AUTH_VER__')) {
             gate.style.display = 'none';
-            return; // 不初始化auth系统，不连Supabase
+            return; // 已完成登录+卡密验证，跳过auth流程
         }
         // 未登录用户：显示gate
         gate.style.display = 'flex';
@@ -1782,7 +1782,7 @@ function renderMinorPathogens() {
 
     async function checkAuth() {
         // 快速检查：如果已有登录标记，直接隐藏gate
-        if (localStorage.getItem('__AUTH_OK__') === '1') {
+        if (localStorage.getItem('__AUTH_OK__') === '1' && localStorage.getItem('__AUTH_VER__')) {
             document.getElementById('authGate').style.display = 'none';
         }
         try {
@@ -1798,6 +1798,7 @@ function renderMinorPathogens() {
                 if (activated) {
                     localStorage.setItem('__AUTH_OK__', '1');
                     localStorage.setItem('__AUTH_USER__', session.user.email || '');
+                    localStorage.setItem('__AUTH_VER__', '1'); // 卡密验证通过标记
                     document.getElementById('authGate').style.display = 'none';
                     return;
                 } else {
@@ -1863,11 +1864,10 @@ function renderMinorPathogens() {
             if (!result.data.user.confirmed_at) {
                 try { await confirmUserEmail(result.data.user.id); } catch(ce) {}
             }
-            setAuthMsg('登录成功！', 'success');
-            // 登录即可使用，无需卡密
-            localStorage.setItem('__AUTH_OK__', '1');
+            setAuthMsg('登录成功！请输入卡密激活', 'success');
             localStorage.setItem('__AUTH_USER__', result.data.user.email || '');
-            document.getElementById('authGate').style.display = 'none';
+            // 登录后必须验证卡密，不直接放行
+            setTimeout(function(){ showAuthTab('card'); }, 600);
         } catch(e) {
             var msg = (e && e.message) ? e.message : '登录失败';
             if (msg.indexOf('Invalid login') >= 0) msg = '邮箱或密码错误';
