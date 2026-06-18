@@ -1,6 +1,6 @@
 {
-  "latest_version": "32",
+  "latest_version": "33",
   "apk_download_url": "",
-  "update_log": "v32: 新增版本检测与更新弹窗，优化缓存策略",
+  "update_log": "v33: 修复卡密验证-登录后必须输入卡密才能使用",
   "force_update": false
 }
