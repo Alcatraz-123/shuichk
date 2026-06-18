@@ -1656,7 +1656,7 @@ function renderMinorPathogens() {
 <script>
 // Force refresh on stale cache - check every time app opens
 (function(){
-    var VER = '28';
+    var VER = '29';
     var stored = localStorage.getItem('_sw_ver');
     if (stored && stored !== VER) {
         // 清除所有缓存数据，强制刷新
@@ -1785,6 +1785,10 @@ function renderMinorPathogens() {
     }
 
     async function checkAuth() {
+        // 快速检查：如果已有登录标记，直接隐藏gate
+        if (localStorage.getItem('__AUTH_OK__') === '1') {
+            document.getElementById('authGate').style.display = 'none';
+        }
         try {
             var result = await authDb.auth.getSession();
             var session = result.data && result.data.session;
