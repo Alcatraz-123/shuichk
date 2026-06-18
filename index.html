@@ -1664,7 +1664,7 @@ function renderMinorPathogens() {
 <script>
 // Force refresh on stale cache - check every time app opens
 (function(){
-    var VER = '34';
+    var VER = '35';
     var stored = localStorage.getItem('_sw_ver');
     if (stored && stored !== VER) {
         // 清除所有缓存数据，强制刷新
@@ -1856,7 +1856,14 @@ function renderMinorPathogens() {
         setAuthMsg('登录中...', '');
         try {
             if (!authDb) { setAuthMsg('认证服务未加载，请刷新页面重试', 'error'); return; }
-            var result = await authDb.auth.signInWithPassword({ email: email, password: pwd });
+            // 10秒超时
+            var loginTimeout = new Promise(function(_, reject) {
+                setTimeout(function(){ reject(new Error('登录超时，请检查网络后重试')); }, 10000);
+            });
+            var result = await Promise.race([
+                authDb.auth.signInWithPassword({ email: email, password: pwd }),
+                loginTimeout
+            ]);
             // Supabase v2: error may be in result.error OR thrown as exception
             if (result.error) { setAuthMsg(result.error.message || '登录失败', 'error'); return; }
             if (!result.data || !result.data.user) { setAuthMsg('登录失败，请检查账号密码', 'error'); return; }
