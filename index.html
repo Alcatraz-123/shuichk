@@ -257,6 +257,47 @@ function switchSurvMapMode(mode) {
     }
 }
 
+function _showProvDetail(provName) {
+    var d = _survEmbeddedData.mapData[provName];
+    var m = _calcProvMetrics(d);
+    var isCumulative = survMapMode === 'cumulative';
+    var cumRates = isCumulative ? _calcCumulativeRates() : null;
+    var el = document.getElementById('survMapDetail');
+    if (!d || !el) { if(el) el.style.display='none'; return; }
+    var riskColor = d.riskLevel === '高' ? '#e74c3c' : d.riskLevel === '中' ? '#f39c12' : '#27ae60';
+    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+    html += '<b style="font-size:13px;color:var(--primary);">' + provName + '</b>';
+    html += '<span style="font-size:10px;color:' + riskColor + ';font-weight:600;">风险：' + d.riskLevel + '</span>';
+    html += '</div>';
+    if (isCumulative) {
+        html += '<div style="color:#666;margin-bottom:4px;">检出' + m.pathogenCount + '种病原 | 涉及' + m.cityCount + '市</div>';
+        html += '<div style="font-size:10px;color:#888;margin-bottom:2px;">全国累计平均检出率</div>';
+        var mainNames = ['圆环病毒','呼肠孤病毒','细小病毒','星状病毒','大肠杆菌','鸭疫里默氏杆菌','沙门氏菌'];
+        html += '<div style="display:flex;flex-wrap:wrap;gap:2px 8px;">';
+        mainNames.forEach(function(n) {
+            if (cumRates[n] && cumRates[n].avg > 0) {
+                html += '<span>' + n + ' <b>' + cumRates[n].avg + '%</b><span style="color:#999;">↑' + cumRates[n].peak + '%</span></span>';
+            }
+        });
+        html += '</div>';
+    } else {
+        html += '<div style="color:#666;margin-bottom:4px;">检出' + m.pathogenCount + '种病原 | 涉及' + m.cityCount + '市</div>';
+        var sorted = Object.keys(m.pathogenMax).sort(function(a,b){return m.pathogenMax[b]-m.pathogenMax[a];});
+        html += '<div style="display:flex;flex-wrap:wrap;gap:2px 8px;">';
+        sorted.slice(0, 5).forEach(function(k) {
+            var topCity = '';
+            for (var city in d.cities) {
+                if (d.cities[city][k] === m.pathogenMax[k]) { topCity = city; break; }
+            }
+            html += '<span>' + k + ' <b>' + m.pathogenMax[k] + '%</b><span style="color:#999;">(' + topCity + ')</span></span>';
+        });
+        html += '</div>';
+    }
+    html += '<div style="margin-top:6px;text-align:center;"><button onclick="loadProvinceMap(\''+provName+'\')" style="border:none;background:var(--primary);color:#fff;padding:4px 14px;border-radius:12px;font-size:11px;cursor:pointer;">查看' + provName + '市级地图 →</button></div>';
+    el.innerHTML = html;
+    el.style.display = 'block';
+}
+
 function renderChinaMap() {
     echarts.registerMap('china', survChinaGeo);
     var mapData = survData.mapData;
@@ -288,35 +329,14 @@ function renderChinaMap() {
             formatter: function(p) {
                 var sn = _normProvName(p.name);
                 var d = mapData[sn];
-                if (!d) return sn + '<br/>暂无数据';
+                if (!d) return sn;
                 var m = p.data._metrics;
+                // 超紧凑tooltip，仅1-2行，详细数据在下方卡片
                 var s = '<b>' + p.name + '</b>';
                 if (isCumulative) {
-                    s += '<br/>累计检出病原：' + m.pathogenCount + '种';
-                    s += '<br/>涉及城市：' + m.cityCount + '个';
-                    s += '<br/>风险等级：' + d.riskLevel;
-                    // 显示全国累计平均（从周数据，紧凑格式）
-                    s += '<br/><br/><b>全国累计平均</b>';
-                    var mainNames = ['圆环病毒','呼肠孤病毒','细小病毒','星状病毒','大肠杆菌','鸭疫里默氏杆菌','沙门氏菌'];
-                    mainNames.forEach(function(n) {
-                        if (cumRates[n] && cumRates[n].avg > 0) {
-                            s += '<br/>' + n + ' ' + cumRates[n].avg + '%↑' + cumRates[n].peak + '%';
-                        }
-                    });
+                    s += '<br/>' + m.pathogenCount + '种病原 | ' + m.cityCount + '市 | ' + d.riskLevel;
                 } else {
-                    s += '<br/>检出病原：' + m.pathogenCount + '种 | 涉及' + m.cityCount + '市';
-                    s += '<br/>风险等级：' + d.riskLevel;
-                    // 逐市展示Top病原（不求和！）
-                    s += '<br/><br/>各市检出：';
-                    var sorted = Object.keys(m.pathogenMax).sort(function(a,b){return m.pathogenMax[b]-m.pathogenMax[a];});
-                    sorted.slice(0, 5).forEach(function(k){
-                        // 找出该病原检出率最高的城市
-                        var topCity = '';
-                        for (var city in d.cities) {
-                            if (d.cities[city][k] === m.pathogenMax[k]) { topCity = city; break; }
-                        }
-                        s += '<br/>' + k + '：' + m.pathogenMax[k] + '%（' + topCity + '）';
-                    });
+                    s += '<br/>' + m.pathogenCount + '种病原 | ' + d.riskLevel;
                 }
                 return s;
             }
@@ -340,7 +360,7 @@ function renderChinaMap() {
         var clickShort = _normProvName(params.name);
         if (params.name && mapData[clickShort]) {
             survCurrentProvince = clickShort;
-            loadProvinceMap(clickShort);
+            _showProvDetail(clickShort);
         }
     });
     survMapLevel = 'china';
@@ -416,7 +436,7 @@ function renderProvinceMap(provName) {
 }
 
 function survMapGoBack() {
-    if (survMapLevel === 'province' && survChinaGeo) { renderChinaMap(); }
+    if (survMapLevel === 'province' && survChinaGeo) { document.getElementById('survMapDetail').style.display='none'; renderChinaMap(); }
 }
 
 function toggleMinorPathogens() {
@@ -2473,6 +2493,7 @@ function renderMinorPathogens() {
                     </div>
                     <div id="survMap" style="width:100%;height:320px;background:white;border-radius:12px;"></div>
                     <div id="survMapInfo" style="font-size:11px;color:var(--text-light);text-align:center;margin-top:4px;">点击省份查看市级详情</div>
+                    <div id="survMapDetail" style="display:none;margin-top:6px;background:#f8f9fa;border-radius:10px;padding:8px 10px;font-size:11px;line-height:1.5;max-height:180px;overflow-y:auto;"></div>
                 </div>
                 <!-- 病原趋势卡片 -->
                 <div style="margin-bottom:8px;display:flex;gap:8px;">
