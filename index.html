@@ -1656,7 +1656,7 @@ function renderMinorPathogens() {
 <script>
 // Force refresh on stale cache - check every time app opens
 (function(){
-    var VER = '27';
+    var VER = '28';
     var stored = localStorage.getItem('_sw_ver');
     if (stored && stored !== VER) {
         // 清除所有缓存数据，强制刷新
@@ -1678,7 +1678,7 @@ function renderMinorPathogens() {
 </script>
 </head>
 <body>
-    <div id="authGate" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#0e3a54 0%,#1a5276 40%,#17a589 100%);display:flex;align-items:center;justify-content:center;">
+    <div id="authGate" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#0e3a54 0%,#1a5276 40%,#17a589 100%);display:none;align-items:center;justify-content:center;"><script>if(!localStorage.getItem('__AUTH_OK__')){document.getElementById('authGate').style.display='flex';}</script>
         <div style="background:#fff;border-radius:20px;padding:32px 24px 24px;width:88%;max-width:360px;box-shadow:0 24px 80px rgba(0,0,0,0.25);">
             <div style="text-align:center;margin-bottom:20px;">
                 <div style="font-size:42px;margin-bottom:4px;">🦆</div>
