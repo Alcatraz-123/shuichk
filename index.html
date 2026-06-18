@@ -1819,15 +1819,21 @@ function renderMinorPathogens() {
         if (!email || !pwd) { setAuthMsg('请填写邮箱和密码', 'error'); return; }
         setAuthMsg('登录中...', '');
         try {
+            if (!authDb) { setAuthMsg('认证服务未加载，请刷新页面重试', 'error'); return; }
             var result = await authDb.auth.signInWithPassword({ email: email, password: pwd });
-            if (result.error) { setAuthMsg(result.error.message, 'error'); return; }
+            // Supabase v2: error may be in result.error OR thrown as exception
+            if (result.error) { setAuthMsg(result.error.message || '登录失败', 'error'); return; }
+            if (!result.data || !result.data.user) { setAuthMsg('登录失败，请检查账号密码', 'error'); return; }
             // 自动确认邮箱（需配合RPC函数）
-            if (result.data && result.data.user && !result.data.user.confirmed_at) {
-                await confirmUserEmail(result.data.user.id);
+            if (!result.data.user.confirmed_at) {
+                try { await confirmUserEmail(result.data.user.id); } catch(ce) {}
             }
+            setAuthMsg('登录成功！', 'success');
             await checkAuth();
         } catch(e) {
-            setAuthMsg('网络错误: ' + e.message, 'error');
+            var msg = (e && e.message) ? e.message : '登录失败';
+            if (msg.indexOf('Invalid login') >= 0) msg = '邮箱或密码错误';
+            setAuthMsg(msg, 'error');
         }
     }
 
