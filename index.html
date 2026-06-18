@@ -283,6 +283,8 @@ function renderChinaMap() {
     var option = {
         tooltip: {
             trigger: 'item',
+            confine: true,
+            extraCssText: 'max-width:220px;max-height:260px;overflow-y:auto;font-size:11px;line-height:1.4;word-break:break-all;',
             formatter: function(p) {
                 var sn = _normProvName(p.name);
                 var d = mapData[sn];
@@ -293,12 +295,12 @@ function renderChinaMap() {
                     s += '<br/>累计检出病原：' + m.pathogenCount + '种';
                     s += '<br/>涉及城市：' + m.cityCount + '个';
                     s += '<br/>风险等级：' + d.riskLevel;
-                    // 显示全国累计平均（从周数据）
-                    s += '<br/><br/>全国累计平均：';
+                    // 显示全国累计平均（从周数据，紧凑格式）
+                    s += '<br/><br/><b>全国累计平均</b>';
                     var mainNames = ['圆环病毒','呼肠孤病毒','细小病毒','星状病毒','大肠杆菌','鸭疫里默氏杆菌','沙门氏菌'];
                     mainNames.forEach(function(n) {
                         if (cumRates[n] && cumRates[n].avg > 0) {
-                            s += '<br/>' + n + '：' + cumRates[n].avg + '%（峰值' + cumRates[n].peak + '%）';
+                            s += '<br/>' + n + ' ' + cumRates[n].avg + '%↑' + cumRates[n].peak + '%';
                         }
                     });
                 } else {
