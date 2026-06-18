@@ -207,6 +207,12 @@ function initSurvMap() {
 
 function loadChinaMap() {
     if (survChinaGeo) { renderChinaMap(); return; }
+    // 优先用内嵌数据，避免WebToApp环境fetch失败
+    if (typeof _survGeoData !== 'undefined' && _survGeoData.china) {
+        survChinaGeo = _survGeoData.china;
+        renderChinaMap();
+        return;
+    }
     fetch('data/china.json')
         .then(function(r){ return r.json(); })
         .then(function(geo){ survChinaGeo = geo; renderChinaMap(); })
@@ -372,6 +378,12 @@ function loadProvinceMap(provName) {
     var code = survProvinceCodeMap[provName];
     if (!code) { document.getElementById('survMapInfo').textContent = provName + ' 暂无详细地图数据'; return; }
     if (survProvinceGeo[provName]) { renderProvinceMap(provName); return; }
+    // 优先用内嵌数据，避免WebToApp环境fetch失败
+    if (typeof _survGeoData !== 'undefined' && _survGeoData[code]) {
+        survProvinceGeo[provName] = _survGeoData[code];
+        renderProvinceMap(provName);
+        return;
+    }
     document.getElementById('survMapInfo').textContent = '加载' + provName + '地图...';
     fetch('data/' + code + '_full.json')
         .then(function(r){ return r.json(); })
@@ -1644,7 +1656,7 @@ function renderMinorPathogens() {
 <script>
 // Force refresh on stale cache - check every time app opens
 (function(){
-    var VER = '26';
+    var VER = '27';
     var stored = localStorage.getItem('_sw_ver');
     if (stored && stored !== VER) {
         // 清除所有缓存数据，强制刷新
