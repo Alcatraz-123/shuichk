@@ -1644,7 +1644,7 @@ function renderMinorPathogens() {
 <script>
 // Force refresh on stale cache - check every time app opens
 (function(){
-    var VER = '25';
+    var VER = '26';
     var stored = localStorage.getItem('_sw_ver');
     if (stored && stored !== VER) {
         // 清除所有缓存数据，强制刷新
@@ -1950,7 +1950,8 @@ function renderMinorPathogens() {
         var dataFiles = [
             'products', 'productDosage', 'waterFeedRef',
             'diseaseData', 'programData', 'diseaseDetails',
-            'diagnosticMap', 'contraData', 'mappings'
+            'diagnosticMap', 'contraData', 'mappings',
+            'competitorProducts'
         ];
 
         function loadFromCache() {
@@ -1974,6 +1975,8 @@ function renderMinorPathogens() {
 
         function loadFromLocal() {
             // 内嵌最小数据集，确保离线可用
+            // 保存内嵌的竞品数据（loadDataAsync可能覆盖__DATA__）
+            var _savedCompetitor = window.__DATA__ && window.__DATA__.competitorProducts ? window.__DATA__.competitorProducts : [];
             window.__DATA__ = {
                 products: [], productDosage: {}, waterFeedRef: {},
                 diseaseData: [], programData: {}, diseaseDetails: {},
@@ -1982,7 +1985,8 @@ function renderMinorPathogens() {
                     symptomTagMap: {}, lesionMap: {},
                     symptomDiseaseMap: {}, allLesionTags: [],
                     directDiseaseNames: []
-                }
+                },
+                competitorProducts: _savedCompetitor
             };
         }
 
@@ -2027,7 +2031,12 @@ function renderMinorPathogens() {
                     if (pending === 0) {
                         done = true;
                         if (!failed) {
+                            // 恢复内嵌的竞品数据（异步加载不含此字段）
+                            var _savedComp = window.__DATA__ && window.__DATA__.competitorProducts ? window.__DATA__.competitorProducts : [];
                             window.__DATA__ = data;
+                            if (!window.__DATA__.competitorProducts || window.__DATA__.competitorProducts.length === 0) {
+                                window.__DATA__.competitorProducts = _savedComp;
+                            }
                             saveToCache(data);
                         } else {
                             if (!loadFromCache()) loadFromLocal();
