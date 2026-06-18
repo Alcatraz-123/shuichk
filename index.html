@@ -1774,24 +1774,19 @@ function renderMinorPathogens() {
 
     async function checkAuth() {
         try {
-
             var result = await authDb.auth.getSession();
             var session = result.data && result.data.session;
             if (session) {
-                var pResult = await authDb.from('profiles').select('card_activated').eq('id', session.user.id).single();
-                var profile = pResult.data;
-                // 如果profile不存在，手动创建
-                if (!profile && session.user) {
-                    try {
-                        await authDb.from('profiles').insert({ id: session.user.id, card_activated: false });
-                        profile = { card_activated: false };
-                    } catch(e) {}
-                }
-                if (profile && profile.card_activated) {
+                // 安全验证：查card_keys表（用户无法伪造），而非profiles表
+                var activated = false;
+                try {
+                    var ckResult = await authDb.from('card_keys').select('id').eq('used_by', session.user.id).eq('status', 'used');
+                    if (ckResult.data && ckResult.data.length > 0) activated = true;
+                } catch(cke) {}
+                if (activated) {
                     localStorage.setItem('__AUTH_OK__', '1');
                     localStorage.setItem('__AUTH_USER__', session.user.email || '');
                     document.getElementById('authGate').style.display = 'none';
-                    
                     return;
                 } else {
                     document.getElementById('authGate').style.display = 'flex';
@@ -1802,13 +1797,11 @@ function renderMinorPathogens() {
         } catch(e) {
             if (localStorage.getItem('__AUTH_OK__') === '1') {
                 document.getElementById('authGate').style.display = 'none';
-                
                 return;
             }
         }
         document.getElementById('authGate').style.display = 'flex';
     }
-
     function showAuthTab(tab) {
         var forms = {login: 'formLogin', register: 'formRegister', card: 'formCard'};
         var tabs = {login: 'tabLogin', register: 'tabRegister'};
