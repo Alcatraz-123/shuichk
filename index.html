@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 
 <script>
     // 全局错误捕获，方便调试
@@ -1534,7 +1538,21 @@ function renderMinorPathogens() {
 
     </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>
-    </head>
+    
+<script>
+// Force refresh on stale cache - check every time app opens
+(function(){
+    var VER = '20';
+    var stored = localStorage.getItem('_sw_ver');
+    if (stored && stored !== VER) {
+        localStorage.setItem('_sw_ver', VER);
+        location.reload(true);
+    } else if (!stored) {
+        localStorage.setItem('_sw_ver', VER);
+    }
+})();
+</script>
+</head>
 <body>
     <div id="authGate" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#0e3a54 0%,#1a5276 40%,#17a589 100%);display:flex;align-items:center;justify-content:center;">
         <div style="background:#fff;border-radius:20px;padding:32px 24px 24px;width:88%;max-width:360px;box-shadow:0 24px 80px rgba(0,0,0,0.25);">
