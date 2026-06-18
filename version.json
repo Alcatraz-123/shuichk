@@ -1,0 +1,6 @@
+{
+  "latest_version": "31",
+  "apk_download_url": "",
+  "update_log": "v31: 修复登录界面闪烁问题，优化缓存策略",
+  "force_update": false
+}
