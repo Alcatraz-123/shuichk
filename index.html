@@ -1662,12 +1662,14 @@ function renderMinorPathogens() {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>
     
 <script>
-// Force refresh on stale cache - check every time app opens
+
+// Remote version check - detects new versions even from cached old code
 (function(){
-    var VER = '36';
+    var VER = '37';
     var stored = localStorage.getItem('_sw_ver');
+    
+    // Local check first (instant)
     if (stored && stored !== VER) {
-        // 清除所有缓存数据，强制刷新
         try {
             var keep = ['__AUTH_OK__','__AUTH_USER__','__AUTH_VER__'];
             var keepVals = {};
@@ -1676,12 +1678,27 @@ function renderMinorPathogens() {
             for(var k in keepVals) localStorage.setItem(k, keepVals[k]);
         } catch(e) {}
         localStorage.setItem('_sw_ver', VER);
-        // 强制跳转新版本URL，绕过WebView缓存
-        var url = location.href.split('?')[0] + '?v=' + VER;
+        var url = location.href.split('?')[0] + '?v=' + VER + '&t=' + Date.now();
         location.replace(url);
+        return;
     } else if (!stored) {
         localStorage.setItem('_sw_ver', VER);
     }
+    
+    // Remote check - fetch _version.json to detect updates (works even from old cached code)
+    try {
+        var baseUrl = location.href.split('?')[0].replace(/[^/]*$/, '');
+        var verUrl = baseUrl + '_version.json?t=' + Date.now();
+        fetch(verUrl, {cache:'no-store'}).then(function(r){ return r.json(); }).then(function(d){
+            if (d && d.version && d.version !== VER) {
+                localStorage.setItem('_sw_ver', d.version);
+                var newUrl = (d.updateUrl || location.href.split('?')[0]) + '?v=' + d.version + '&t=' + Date.now();
+                if (confirm('发现新版本 v' + d.version + (d.message ? '：' + d.message : '') + '\n是否立即更新？')) {
+                    location.replace(newUrl);
+                }
+            }
+        }).catch(function(){});
+    } catch(e) {}
 })();
 </script>
 </head>
@@ -5548,7 +5565,7 @@ var canvasH = headerH + lesionBarH + symptomBarH + photoGridH + diseaseBarH + pa
                 html += '<div style="font-size:11px;color:var(--text-light);padding:8px 0 4px;font-weight:600;">' + c.date + '</div>';
                 lastDate = c.date;
             }
-            html += '<div class="case-record-item" onclick="viewCaseFromTab(' + c.id + ')" style="position:relative;padding:12px;border-radius:10px;margin-bottom:8px;background:#fff;border:1px solid var(--border);cursor:pointer;">';
+            html += '<div class="case-record-item" data-case-id="' + c.id + '" style="position:relative;padding:12px;border-radius:10px;margin-bottom:8px;background:#fff;border:1px solid var(--border);cursor:pointer;">';
             html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
             html += '<div style="flex:1;min-width:0;">';
             html += '<div style="font-size:13px;color:var(--text);font-weight:500;word-break:break-all;">' + c.query + '</div>';
@@ -5602,7 +5619,7 @@ var canvasH = headerH + lesionBarH + symptomBarH + photoGridH + diseaseBarH + pa
                 html += '<div style="font-size:11px;color:var(--text-light);padding:8px 0 4px;font-weight:600;">' + c.date + '</div>';
                 lastDate = c.date;
             }
-            html += '<div class="case-record-item" onclick="viewCaseFromTab(' + c.id + ')" style="position:relative;padding:12px;border-radius:10px;margin-bottom:8px;background:#fff;border:1px solid var(--border);cursor:pointer;">';
+            html += '<div class="case-record-item" data-case-id="' + c.id + '" style="position:relative;padding:12px;border-radius:10px;margin-bottom:8px;background:#fff;border:1px solid var(--border);cursor:pointer;">';
             html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
             html += '<div style="flex:1;min-width:0;">';
             html += '<div style="font-size:13px;color:var(--text);font-weight:500;word-break:break-all;">' + c.query + '</div>';
@@ -5627,11 +5644,35 @@ var canvasH = headerH + lesionBarH + symptomBarH + photoGridH + diseaseBarH + pa
             html += '<div style="font-size:10px;color:var(--text-light);">' + c.time.split(' ')[1] + '</div>';
             html += '<div style="display:flex;gap:2px;">';
             html += '<button onclick="event.stopPropagation();editCaseNote(' + c.id + ')" style="border:none;background:none;font-size:13px;cursor:pointer;color:var(--text-light);padding:2px 4px;" title="编辑备注">📝</button>';
-            html += '<button onclick="event.stopPropagation();deleteCase(' + c.id + ');renderCaseListTab();" style="border:none;background:none;font-size:13px;cursor:pointer;color:var(--text-light);padding:2px 4px;" title="删除">✕</button>';
+            html += '<button data-delete-id="' + c.id + '" style="border:none;background:none;font-size:13px;cursor:pointer;color:var(--text-light);padding:2px 4px;" title="删除">✕</button>';
             html += '</div></div></div></div>';
         });
         listEl.innerHTML = html;
     }
+
+
+    // Event delegation for case record clicks (more reliable than inline onclick in WebToApp)
+    (function(){
+        var tab = document.getElementById('caseListTab');
+        if (!tab) return;
+        tab.addEventListener('click', function(e) {
+            // Handle delete button click
+            var delBtn = e.target.closest('[data-delete-id]');
+            if (delBtn) {
+                e.stopPropagation();
+                var delId = parseInt(delBtn.getAttribute('data-delete-id'));
+                if (delId) { deleteCase(delId); renderCaseListTab(); }
+                return;
+            }
+            // Handle case record item click
+            var item = e.target.closest('[data-case-id]');
+            if (item) {
+                var id = parseInt(item.getAttribute('data-case-id'));
+                if (id) viewCaseFromTab(id);
+                return;
+            }
+        });
+    })();
 
     function viewCaseFromTab(id) {
         var c = caseRecords.find(function(r) { return r.id === id; });
@@ -5697,7 +5738,7 @@ var canvasH = headerH + lesionBarH + symptomBarH + photoGridH + diseaseBarH + pa
         html += '</div></div>';
         html += '<div style="display:flex;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">';
         html += '<button onclick="reopenCase(' + c.id + ')" style="flex:1;border:none;background:var(--primary);color:#fff;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;">💬 在问答中重新分析</button>';
-        html += '<button onclick="deleteCase(' + c.id + ');renderCaseListTab();" style="border:none;background:#fde8e8;color:#e74c3c;padding:10px 14px;border-radius:10px;font-size:13px;cursor:pointer;">🗑️</button>';
+        html += '<button data-delete-id="' + c.id + '" style="border:none;background:#fde8e8;color:#e74c3c;padding:10px 14px;border-radius:10px;font-size:13px;cursor:pointer;">🗑️</button>';
         html += '</div>';
         html += '</div>';
         listEl.innerHTML = html;
