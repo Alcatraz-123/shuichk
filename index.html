@@ -1711,7 +1711,7 @@ function renderMinorPathogens() {
     .qa-ai-key-status.no { color:var(--accent); }
 
     </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
 <script>
 
@@ -4270,26 +4270,7 @@ function autoCalc2() {
             try {
                 var w = window.open('');
                 if (w) {
-                    w.document.write('<html><head><title>' + (title||'\u56fe\u7247') + '</title><script>
-// Remote version check - auto-refresh when data updates
-(function(){
-    var CHECK_KEY = '__REMOTE_VER__';
-    var verUrl = location.origin + location.pathname.replace(/[^/]*$/,'') + 'ver.json?_=' + Date.now();
-    fetch(verUrl).then(function(r){return r.json()}).then(function(d){
-        var remote = d.v || '';
-        var stored = localStorage.getItem(CHECK_KEY) || '';
-        if(remote && remote !== stored){
-            localStorage.setItem(CHECK_KEY, remote);
-            if(stored){ // 不是首次，说明有更新
-                localStorage.removeItem('__APP_DATA__');
-                localStorage.removeItem('__APP_DATA_VER__');
-                location.replace(location.origin + location.pathname + '?_=' + Date.now());
-            }
-        }
-    }).catch(function(){});
-})();
-</script>
-</head><\body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="' + imgData + '" style="max-width:100%;"><\/body><\/html>');
+                    w.document.write('<html><head><title>' + (title||'\u56fe\u7247') + '</title></head><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="' + imgData + '" style="max-width:100%;"></body></html>');
 
                     w.document.close();
                     saveBtn.textContent = '✅ 已打开';
