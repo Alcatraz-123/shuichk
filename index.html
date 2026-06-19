@@ -131,7 +131,9 @@ function initSurveillance() {
         var dy = e.touches[0].clientY - startY;
         if(dy > 0 && dy < 150){
             pulling = true;
-            indicator.style.transform = 'translateY(' + (dy - 40) + 'px)';
+            var showH = Math.min(dy, 40);
+            indicator.style.height = showH + 'px';
+            indicator.style.padding = (showH/5) + 'px 0';
             indicator.textContent = dy > 60 ? '↑ 松开刷新' : '↓ 下拉刷新流调数据';
         }
     }, {passive: true});
@@ -139,16 +141,19 @@ function initSurveillance() {
     container.addEventListener('touchend', function(){
         if(!pulling) return;
         var current = indicator.style.transform;
-        indicator.style.transform = 'translateY(-40px)';
+        indicator.style.height = '0';
+        indicator.style.padding = '0';
         
         if(indicator.textContent.indexOf('松开') > -1){
             indicator.textContent = '⏳ 正在刷新...';
-            indicator.style.transform = 'translateY(0px)';
+            indicator.style.height = '40px';
+            indicator.style.padding = '8px 0';
             // 重新加载流调数据
             survData = null;
             initSurveillance();
             setTimeout(function(){
-                indicator.style.transform = 'translateY(-40px)';
+                indicator.style.height = '0';
+                indicator.style.padding = '0';
                 indicator.textContent = '↓ 下拉刷新流调数据';
             }, 1500);
         }
@@ -2520,7 +2525,7 @@ function renderMinorPathogens() {
 
         <!-- 流调数据 -->
         <div id="surveillance" class="tab-content">
-            <div id="survPullIndicator" style="text-align:center;padding:8px 0;font-size:12px;color:var(--accent);transition:transform 0.2s;transform:translateY(-40px);">↓ 下拉刷新流调数据</div>
+            <div id="survPullIndicator" style="text-align:center;padding:0;font-size:12px;color:var(--accent);height:0;overflow:hidden;transition:height 0.2s,padding 0.2s;">↓ 下拉刷新流调数据</div>
             <div style="padding:12px 16px;">
                 <div style="text-align:center;margin-bottom:10px;">
                     <div style="font-size:12px;color:var(--text-light);" id="survUpdateDate">数据加载中...</div>
