@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Loading...</title>
+<style>body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#1a5276;color:#fff;font-family:sans-serif}</style>
+</head><body><div id="s">Loading...</div>
+<script>
+fetch("https://tnkqrgqdjvriuaohyszf.supabase.co/storage/v1/object/public/shuichk/index.html")
+.then(function(r){return r.text()})
+.then(function(html){
+  document.open();
+  document.write(html);
+  document.close();
+})
+.catch(function(e){
+  document.getElementById("s").textContent="Load failed: "+e.message;
+});
+</script></body></html>

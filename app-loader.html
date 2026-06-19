@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>瑞普水禽工具包</title>
+<style>*{margin:0;padding:0}body{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#1a5276,#154360);color:#fff;font-family:sans-serif}#bar{width:120px;height:4px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden;margin-top:16px}#bar-in{width:0;height:100%;background:#17a589;border-radius:4px;transition:width .3s}</style>
+</head><body>
+<div style="font-size:48px;margin-bottom:12px">🦆</div>
+<div>瑞普水禽工具包</div>
+<div id="bar"><div id="bar-in"></div></div>
+<div id="err" style="color:#ff6b6b;margin-top:12px;font-size:12px"></div>
+<script>
+var bar=document.getElementById("bar-in");
+bar.style.width="30%";
+fetch("https://tnkqrgqdjvriuaohyszf.supabase.co/storage/v1/object/public/shuichk/index.html")
+.then(function(r){
+  bar.style.width="60%";
+  return r.text();
+})
+.then(function(html){
+  bar.style.width="90%";
+  document.open();document.write(html);document.close();
+  bar.style.width="100%";
+})
+.catch(function(e){
+  document.getElementById("err").textContent="加载失败，请检查网络后重试";
+  bar.style.width="0";
+});
+</script></body></html>
