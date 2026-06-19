@@ -1652,24 +1652,9 @@ function renderMinorPathogens() {
     
 <script>
 
-// Force refresh on stale cache - check every time app opens
+// Version marker - v40: zero redirect, zero cache clear, WebView safe
 (function(){
-    var VER = '39';
-    var stored = localStorage.getItem('_sw_ver');
-    if (stored && stored !== VER) {
-        try {
-            var keep = ['__AUTH_OK__','__AUTH_USER__','__AUTH_VER__'];
-            var keepVals = {};
-            keep.forEach(function(k){ var v=localStorage.getItem(k); if(v) keepVals[k]=v; });
-            localStorage.clear();
-            for(var k in keepVals) localStorage.setItem(k, keepVals[k]);
-        } catch(e) {}
-        localStorage.setItem('_sw_ver', VER);
-        var url = location.href.split('?')[0] + '?v=' + VER;
-        location.replace(url);
-    } else if (!stored) {
-        localStorage.setItem('_sw_ver', VER);
-    }
+    try { localStorage.setItem('_sw_ver', '40'); } catch(e) {}
 })();
 </script>
 </head>
