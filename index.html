@@ -107,6 +107,56 @@ function initSurveillance() {
     });
 }
 
+
+
+// === 流调页面下拉刷新 ===
+(function(){
+    var container = document.getElementById('surveillance');
+    var indicator = document.getElementById('survPullIndicator');
+    if(!container || !indicator) return;
+    
+    var startY = 0, pulling = false, canPull = false;
+    
+    container.addEventListener('touchstart', function(e){
+        if(container.scrollTop <= 0){
+            canPull = true;
+            startY = e.touches[0].clientY;
+        } else {
+            canPull = false;
+        }
+    }, {passive: true});
+    
+    container.addEventListener('touchmove', function(e){
+        if(!canPull) return;
+        var dy = e.touches[0].clientY - startY;
+        if(dy > 0 && dy < 150){
+            pulling = true;
+            indicator.style.transform = 'translateY(' + (dy - 40) + 'px)';
+            indicator.textContent = dy > 60 ? '↑ 松开刷新' : '↓ 下拉刷新流调数据';
+        }
+    }, {passive: true});
+    
+    container.addEventListener('touchend', function(){
+        if(!pulling) return;
+        var current = indicator.style.transform;
+        indicator.style.transform = 'translateY(-40px)';
+        
+        if(indicator.textContent.indexOf('松开') > -1){
+            indicator.textContent = '⏳ 正在刷新...';
+            indicator.style.transform = 'translateY(0px)';
+            // 重新加载流调数据
+            survData = null;
+            initSurveillance();
+            setTimeout(function(){
+                indicator.style.transform = 'translateY(-40px)';
+                indicator.textContent = '↓ 下拉刷新流调数据';
+            }, 1500);
+        }
+        pulling = false;
+        canPull = false;
+    });
+})();
+
 function renderSurveillance() {
     if (!survData) return;
     document.getElementById('survUpdateDate').textContent = '数据更新：' + survData.updateDate + '  版本：' + survData.version;
@@ -2470,6 +2520,7 @@ function renderMinorPathogens() {
 
         <!-- 流调数据 -->
         <div id="surveillance" class="tab-content">
+            <div id="survPullIndicator" style="text-align:center;padding:8px 0;font-size:12px;color:var(--accent);transition:transform 0.2s;transform:translateY(-40px);">↓ 下拉刷新流调数据</div>
             <div style="padding:12px 16px;">
                 <div style="text-align:center;margin-bottom:10px;">
                     <div style="font-size:12px;color:var(--text-light);" id="survUpdateDate">数据加载中...</div>
