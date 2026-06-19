@@ -1746,7 +1746,7 @@ function renderMinorPathogens() {
 </script>
 </head>
 <body>
-    <div id="authGate" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#0e3a54 0%,#1a5276 40%,#17a589 100%);display:none;align-items:center;justify-content:center;"><script>if(localStorage.getItem('__AUTH_OK__')==='1'&&localStorage.getItem('__AUTH_VER__')){var g=document.getElementById('authGate');g.style.display='none!important';g.setAttribute('data-skip','1');}</script>
+    <div id="authGate" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#0e3a54 0%,#1a5276 40%,#17a589 100%);display:none;align-items:center;justify-content:center;"><script>if(localStorage.getItem('__AUTH_OK__')==='1'&&localStorage.getItem('__AUTH_VER__')&&localStorage.getItem('__AUTH_REALNAME__')){var g=document.getElementById('authGate');g.style.display='none!important';g.setAttribute('data-skip','1');}</script>
         <div style="background:#fff;border-radius:20px;padding:32px 24px 24px;width:88%;max-width:360px;box-shadow:0 24px 80px rgba(0,0,0,0.25);">
             <div style="text-align:center;margin-bottom:20px;">
                 <div style="font-size:42px;margin-bottom:4px;">🦆</div>
@@ -1772,6 +1772,13 @@ function renderMinorPathogens() {
                 <p style="text-align:center;font-size:13px;color:#666;margin-bottom:12px;">🔑 请输入卡密激活使用</p>
                 <input id="cardKeyInput" placeholder="RP-XXXX-XXXX-XXXX" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:16px;outline:none;text-transform:uppercase;text-align:center;letter-spacing:1px;font-weight:600;">
                 <button onclick="doActivate()" style="width:100%;padding:12px;background:#27ae60;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;">激活</button>
+            </div>
+            <div id="formVerify" style="display:none;">
+                <p style="text-align:center;font-size:13px;color:#666;margin-bottom:12px;">📋 请填写实名信息</p>
+                <input id="verifyName" type="text" placeholder="姓名（必填）" style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid #e0e6ed;border-radius:10px;font-size:14px;margin-bottom:10px;outline:none;transition:border 0.2s;background:#f7f9fb;">
+                <input id="verifyPhone" type="tel" placeholder="手机号（必填）" maxlength="11" style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid #e0e6ed;border-radius:10px;font-size:14px;margin-bottom:10px;outline:none;transition:border 0.2s;background:#f7f9fb;">
+                <input id="verifyCompany" type="text" placeholder="所属公司/养殖场（选填）" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;margin-bottom:16px;outline:none;">
+                <button onclick="doSubmitVerify()" style="width:100%;padding:12px;background:#2980b9;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(41,128,185,0.2);">提交认证</button>
             </div>
             <div id="authMsg" style="margin-top:12px;text-align:center;font-size:12px;min-height:16px;"></div>
         </div>
@@ -1856,11 +1863,30 @@ function renderMinorPathogens() {
                     if (ckResult.data && ckResult.data.length > 0) activated = true;
                 } catch(cke) {}
                 if (activated) {
-                    localStorage.setItem('__AUTH_OK__', '1');
-                    localStorage.setItem('__AUTH_USER__', session.user.email || '');
-                    localStorage.setItem('__AUTH_VER__', '1'); // 卡密验证通过标记
-                    document.getElementById('authGate').style.display = 'none';
-                    return;
+                    // 检查实名认证
+                    try {
+                        var profileRes = await authDb.from('profiles').select('real_name,phone').eq('id', session.user.id).single();
+                        if (profileRes.data && profileRes.data.real_name && profileRes.data.phone) {
+                            localStorage.setItem('__AUTH_OK__', '1');
+                            localStorage.setItem('__AUTH_USER__', session.user.email || '');
+                            localStorage.setItem('__AUTH_VER__', '1');
+                            localStorage.setItem('__AUTH_REALNAME__', '1');
+                            document.getElementById('authGate').style.display = 'none';
+                            return;
+                        } else {
+                            // 卡密已激活但未实名认证
+                            document.getElementById('authGate').style.display = 'flex';
+                            showAuthTab('verify');
+                            return;
+                        }
+                    } catch(pe) {
+                        // 查询失败，放行（兼容旧版）
+                        localStorage.setItem('__AUTH_OK__', '1');
+                        localStorage.setItem('__AUTH_USER__', session.user.email || '');
+                        localStorage.setItem('__AUTH_VER__', '1');
+                        document.getElementById('authGate').style.display = 'none';
+                        return;
+                    }
                 } else {
                     document.getElementById('authGate').style.display = 'flex';
                     showAuthTab('card');
@@ -1876,7 +1902,7 @@ function renderMinorPathogens() {
         document.getElementById('authGate').style.display = 'flex';
     }
     function showAuthTab(tab) {
-        var forms = {login: 'formLogin', register: 'formRegister', card: 'formCard'};
+        var forms = {login: 'formLogin', register: 'formRegister', card: 'formCard', verify: 'formVerify'};
         var tabs = {login: 'tabLogin', register: 'tabRegister'};
         for (var k in forms) {
             var el = document.getElementById(forms[k]);
@@ -1895,6 +1921,9 @@ function renderMinorPathogens() {
         if (tab === 'card') {
             authTabsEl.style.display = 'none';
             subtitle.textContent = '请输入卡密激活';
+        } else if (tab === 'verify') {
+            authTabsEl.style.display = 'none';
+            subtitle.textContent = '请完成实名认证';
         } else {
             authTabsEl.style.display = 'flex';
             subtitle.textContent = '请登录后使用';
@@ -1988,16 +2017,40 @@ function renderMinorPathogens() {
             localStorage.setItem('__AUTH_OK__', '1');
             localStorage.setItem('__AUTH_USER__', session.user.email || '');
             setAuthMsg('激活成功！', 'success');
-            setTimeout(function() { document.getElementById('authGate').style.display = 'none';  }, 800);
+            setTimeout(function() { showAuthTab('verify');  }, 800);
         } catch(e) {
             setAuthMsg('网络错误: ' + e.message, 'error');
         }
     }
 
-    function doLogout() {
+    async function doSubmitVerify() {
+        var name = document.getElementById('verifyName').value.trim();
+        var phone = document.getElementById('verifyPhone').value.trim();
+        var company = document.getElementById('verifyCompany').value.trim();
+        if (!name) { setAuthMsg('请填写姓名', 'error'); return; }
+        if (!phone || !/^1[3-9]\d{9}$/.test(phone)) { setAuthMsg('请填写正确的11位手机号', 'error'); return; }
+        setAuthMsg('提交中...', '');
+        try {
+            var sessResult = await authDb.auth.getSession();
+            var session = sessResult.data && sessResult.data.session;
+            if (!session) { setAuthMsg('请先登录', 'error'); showAuthTab('login'); return; }
+            await authDb.from('profiles').update({ real_name: name, phone: phone, company: company || null }).eq('id', session.user.id);
+            localStorage.setItem('__AUTH_OK__', '1');
+            localStorage.setItem('__AUTH_USER__', session.user.email || '');
+            localStorage.setItem('__AUTH_VER__', '1');
+            localStorage.setItem('__AUTH_REALNAME__', '1');
+            setAuthMsg('认证成功！', 'success');
+            setTimeout(function() { document.getElementById('authGate').style.display = 'none'; }, 800);
+        } catch(e) {
+            setAuthMsg('提交失败: ' + e.message, 'error');
+        }
+    }
+
+        function doLogout() {
         if (authDb) authDb.auth.signOut();
         localStorage.removeItem('__AUTH_OK__');
         localStorage.removeItem('__AUTH_USER__');
+        localStorage.removeItem('__AUTH_REALNAME__');
         
         document.getElementById('authGate').style.display = 'flex';
         showAuthTab('login');
