@@ -1,17 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<script>
-// 注销所有Service Worker，防止WebView缓存旧页面
-if('serviceWorker' in navigator){
-    navigator.serviceWorker.getRegistrations().then(function(regs){
-        regs.forEach(function(r){ r.unregister(); });
-    });
-}
-</script>
 
 
 <script>
@@ -1665,7 +1654,7 @@ function renderMinorPathogens() {
 
 // Remote version check - v38: no auto-redirect (WebView safe)
 (function(){
-    var VER = '38';
+    var VER = '39';
     // Just record current version, never redirect during page load
     try { localStorage.setItem('_sw_ver', VER); } catch(e) {}
     
