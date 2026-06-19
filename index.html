@@ -5579,9 +5579,128 @@ var canvasH = headerH + lesionBarH + symptomBarH + photoGridH + diseaseBarH + pa
         listEl.innerHTML = html;
     }
 
+    function renderCaseListTab() {
+        var keyword = (document.getElementById('caseSearchInput2').value || '').trim().toLowerCase();
+        var filtered = caseRecords;
+        if (keyword) {
+            filtered = caseRecords.filter(function(c) {
+                return c.query.toLowerCase().indexOf(keyword) >= 0 || 
+                    (c.lesions && c.lesions.some(function(l) { return l.toLowerCase().indexOf(keyword) >= 0; })) ||
+                    (c.results && c.results.some(function(r) { return r && r.toLowerCase().indexOf(keyword) >= 0; }));
+            });
+        }
+        filtered.sort(function(a, b) { return b.id - a.id; });
+        var listEl = document.getElementById('caseListTab');
+        if (filtered.length === 0) {
+            listEl.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:30px 0;font-size:13px;">' + (keyword ? '未找到匹配的病例' : '暂无病例记录<br>在智能问答中输入症状会自动保存') + '</div>';
+            return;
+        }
+        var html = '';
+        var lastDate = '';
+        filtered.forEach(function(c) {
+            if (c.date !== lastDate) {
+                html += '<div style="font-size:11px;color:var(--text-light);padding:8px 0 4px;font-weight:600;">' + c.date + '</div>';
+                lastDate = c.date;
+            }
+            html += '<div class="case-record-item" onclick="viewCaseFromTab(' + c.id + ')" style="position:relative;padding:12px;border-radius:10px;margin-bottom:8px;background:#fff;border:1px solid var(--border);cursor:pointer;">';
+            html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+            html += '<div style="flex:1;min-width:0;">';
+            html += '<div style="font-size:13px;color:var(--text);font-weight:500;word-break:break-all;">' + c.query + '</div>';
+            if (c.lesions && c.lesions.length > 0) {
+                html += '<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;">';
+                c.lesions.forEach(function(l) {
+                    html += '<span style="font-size:10px;padding:2px 6px;border-radius:8px;background:#e8f4f8;color:#1a5276;">' + l + '</span>';
+                });
+                html += '</div>';
+            }
+            if (c.results && c.results.length > 0) {
+                var cr = c.results.filter(function(r) { return r && r.indexOf('undefined') < 0; });
+                if (cr.length > 0) {
+                    html += '<div style="font-size:11px;color:var(--primary);margin-top:4px;">🦠 ' + cr.join('、') + '</div>';
+                }
+            }
+            if (c.note) {
+                html += '<div style="font-size:11px;color:var(--text-light);margin-top:3px;font-style:italic;">📝 ' + c.note + '</div>';
+            }
+            html += '</div>';
+            html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;margin-left:8px;">';
+            html += '<div style="font-size:10px;color:var(--text-light);">' + c.time.split(' ')[1] + '</div>';
+            html += '<div style="display:flex;gap:2px;">';
+            html += '<button onclick="event.stopPropagation();editCaseNote(' + c.id + ')" style="border:none;background:none;font-size:13px;cursor:pointer;color:var(--text-light);padding:2px 4px;" title="编辑备注">📝</button>';
+            html += '<button onclick="event.stopPropagation();deleteCase(' + c.id + ');renderCaseListTab();" style="border:none;background:none;font-size:13px;cursor:pointer;color:var(--text-light);padding:2px 4px;" title="删除">✕</button>';
+            html += '</div></div></div></div>';
+        });
+        listEl.innerHTML = html;
+    }
+
     function viewCaseFromTab(id) {
-        // 切换到快速诊断tab并打开详情
-        viewCaseDetail(id);
+        var c = caseRecords.find(function(r) { return r.id === id; });
+        if (!c) return;
+        var listEl = document.getElementById('caseListTab');
+        var cleanResults = [];
+        if (c.results) cleanResults = c.results.filter(function(r) { return r && r.indexOf('undefined') < 0; });
+        var html = '<div style="padding:0;">';
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0 12px;border-bottom:1px solid var(--border);margin-bottom:12px;">';
+        html += '<button onclick="renderCaseListTab()" style="border:none;background:none;font-size:14px;color:var(--primary);cursor:pointer;padding:4px 8px;">← 返回列表</button>';
+        html += '<span style="font-size:10px;color:var(--text-light);">' + c.time + '</span>';
+        html += '</div>';
+        html += '<div style="margin-bottom:14px;">';
+        html += '<div style="font-size:12px;color:var(--text-light);margin-bottom:4px;">📋 症状描述</div>';
+        html += '<div style="font-size:14px;color:var(--text);font-weight:500;padding:8px 12px;background:var(--bg);border-radius:8px;">' + c.query + '</div>';
+        html += '</div>';
+        if (c.lesions && c.lesions.length > 0) {
+            html += '<div style="margin-bottom:14px;">';
+            html += '<div style="font-size:12px;color:var(--text-light);margin-bottom:6px;">🔬 剖检病变</div>';
+            html += '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+            c.lesions.forEach(function(l) {
+                html += '<span style="font-size:11px;padding:4px 10px;border-radius:10px;background:#e8f4f8;color:#1a5276;font-weight:500;">' + l + '</span>';
+            });
+            html += '</div></div>';
+        }
+        if (cleanResults.length > 0) {
+            html += '<div style="margin-bottom:14px;">';
+            html += '<div style="font-size:12px;color:var(--text-light);margin-bottom:6px;">🦠 疑似疾病</div>';
+            cleanResults.forEach(function(dName) {
+                var d = diseaseData.find(function(dd) { return dd.name === dName; });
+                html += '<div class="qa-disease-group">';
+                html += '<div class="qa-disease-title">🦠 ' + dName + '</div>';
+                if (d && d.solutions) {
+                    d.solutions.forEach(function(s) {
+                        html += '<div class="qa-solution-item">';
+                        html += '<div class="qa-solution-label">' + s.title + '</div>';
+                        html += '<div class="qa-solution-products">' + s.products + '</div>';
+                        if (s.note) html += '<div class="qa-solution-note">💡 ' + s.note + '</div>';
+                        html += '</div>';
+                    });
+                } else {
+                    html += '<div style="padding:8px 14px;font-size:12px;color:var(--text-light);">暂无方案数据</div>';
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+        if (c.photos && c.photos.length > 0) {
+            html += '<div style="margin-bottom:14px;">';
+            html += '<div style="font-size:12px;color:var(--text-light);margin-bottom:6px;">📷 病变图片</div>';
+            html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
+            c.photos.forEach(function(p, idx) {
+                var src = typeof p === 'string' ? p : p.src;
+                html += '<img src="' + src + '" onclick="viewQAPhoto2(' + id + ',' + idx + ')" style="width:80px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border);">';
+            });
+            html += '</div></div>';
+        }
+        html += '<div style="margin-bottom:14px;">';
+        html += '<div style="font-size:12px;color:var(--text-light);margin-bottom:4px;">📝 备注</div>';
+        html += '<div style="display:flex;gap:8px;align-items:flex-start;">';
+        html += '<div id="caseNoteTab_' + c.id + '" style="flex:1;padding:8px 12px;background:var(--bg);border-radius:8px;font-size:13px;color:' + (c.note ? 'var(--text)' : 'var(--text-light)') + ';min-height:36px;">' + (c.note || '点击编辑添加备注') + '</div>';
+        html += '<button onclick="editCaseNote(' + c.id + ')" style="border:none;background:var(--primary);color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;cursor:pointer;flex-shrink:0;">编辑</button>';
+        html += '</div></div>';
+        html += '<div style="display:flex;gap:8px;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">';
+        html += '<button onclick="reopenCase(' + c.id + ')" style="flex:1;border:none;background:var(--primary);color:#fff;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;">💬 在问答中重新分析</button>';
+        html += '<button onclick="deleteCase(' + c.id + ');renderCaseListTab();" style="border:none;background:#fde8e8;color:#e74c3c;padding:10px 14px;border-radius:10px;font-size:13px;cursor:pointer;">🗑️</button>';
+        html += '</div>';
+        html += '</div>';
+        listEl.innerHTML = html;
     }
 
     function closeCaseRecord() {
