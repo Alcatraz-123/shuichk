@@ -1685,10 +1685,10 @@ function renderMinorPathogens() {
         localStorage.setItem('_sw_ver', VER);
     }
     
-    // Remote check - fetch _version.json to detect updates (works even from old cached code)
+    // Remote check - fetch version.json to detect updates (works even from old cached code)
     try {
         var baseUrl = location.href.split('?')[0].replace(/[^/]*$/, '');
-        var verUrl = baseUrl + '_version.json?t=' + Date.now();
+        var verUrl = baseUrl + 'version.json?t=' + Date.now();
         fetch(verUrl, {cache:'no-store'}).then(function(r){ return r.json(); }).then(function(d){
             if (d && d.version && d.version !== VER) {
                 localStorage.setItem('_sw_ver', d.version);
