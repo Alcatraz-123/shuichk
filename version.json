@@ -1,6 +1,1 @@
-{
-  "latest_version": "35",
-  "apk_download_url": "",
-  "update_log": "v35: 登录增加超时处理，防止卡在登录中",
-  "force_update": false
-}
+{"version":"37","minVer":"35","message":"v37: remote version check + case tab fix","updateUrl":"https://alcatraz-123.github.io/shuichk/?v=37"}
